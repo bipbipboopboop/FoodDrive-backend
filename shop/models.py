@@ -36,6 +36,7 @@ class User(AbstractBaseUser, PermissionsMixin):
     USERNAME_FIELD = 'email'
     email = models.EmailField(max_length=255, unique=True)
     name = models.CharField(max_length=255)
+    is_staff = models.BooleanField(default=True)
     is_active = models.BooleanField(default=True)
     is_admin = models.BooleanField(default=False)
     User_Type = (
@@ -47,6 +48,9 @@ class User(AbstractBaseUser, PermissionsMixin):
                                  default=VENDOR
                                  )
     created_at = models.DateTimeField(default=timezone.now)
+
+    REQUIRED_FIELDS = ['name', 'password']
+
     objects = UserManager()
     def __str__(self):
         return self.email

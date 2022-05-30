@@ -38,7 +38,9 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'rest_framework',
-    'shop'
+    'corsheaders',
+    'shop', 
+    'djoser'
 ]
 
 MIDDLEWARE = [
@@ -46,6 +48,8 @@ MIDDLEWARE = [
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
+    'corsheaders.middleware.CorsMiddleware',
+    'django.middleware.common.CommonMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
@@ -67,6 +71,10 @@ TEMPLATES = [
             ],
         },
     },
+]
+
+CORS_ALLOWED_ORIGINS = [
+    "http://localhost:3000",
 ]
 
 WSGI_APPLICATION = 'backend.wsgi.application'
@@ -126,6 +134,17 @@ STATIC_URL = '/static/'
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
+DJOSER = {
+    'LOGIN_FIELD' : 'email', 
+    'USER_CREATE_PASSWORD_RETYPE': True, 
+    'SERIALIZERS': {
+        'user_create' : 'shop.serializers.ShopUserCreateSerializer',
+    }
+}
+
+SIMPLE_JWT = {
+   'AUTH_HEADER_TYPES': ('JWT',),
+}
 
 # REST FRAMEWORK CONFIGURATION
 REST_FRAMEWORK = {
@@ -139,5 +158,7 @@ REST_FRAMEWORK = {
         'rest_framework.permissions.IsAuthenticated',
     ),
 }
+
+
 
 AUTH_USER_MODEL = "shop.User" 

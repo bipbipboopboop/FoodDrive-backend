@@ -1,0 +1,9 @@
+__pycache__/*
+.python-version
+.idea
+*.idea/*
+*.zip
+*.log
+.venv
+.env
+
