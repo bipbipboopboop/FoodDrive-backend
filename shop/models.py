@@ -1,7 +1,7 @@
 from django.db import models
 from django.contrib.auth.models import (
     AbstractBaseUser,
-    PermissionsMixin, 
+    PermissionsMixin,
     BaseUserManager
 )
 from django.utils import timezone
@@ -9,6 +9,8 @@ from django.utils import timezone
 VENDOR = 'vendor'
 CUSTOMER = 'customer'
 # Create your models here.
+
+
 class UserManager(BaseUserManager):
     def create_user(self, email, name, password=None, **extra_fields):
         """Create user by email, name, password"""
@@ -52,6 +54,7 @@ class User(AbstractBaseUser, PermissionsMixin):
     REQUIRED_FIELDS = ['name', 'password']
 
     objects = UserManager()
+
     def __str__(self):
         return self.email
 
@@ -60,31 +63,34 @@ class User(AbstractBaseUser, PermissionsMixin):
 
 
 class Store(models.Model):
-    name = models.CharField(max_length = 255)
+    name = models.CharField(max_length=255)
+
 
 class Menu(models.Model):
-    title = models.CharField(max_length = 255)
+    title = models.CharField(max_length=255)
+
 
 class Promotion(models.Model):
     discount = models.DecimalField(max_digits=3, decimal_places=0)
 
+
 class Products(models.Model):
-    title = models.CharField(max_length = 255)
+    title = models.CharField(max_length=255)
     unit_price = models.DecimalField(
         max_digits=6,
         decimal_places=2)
     menu = models.ForeignKey(Menu, on_delete=models.PROTECT)
 
-
     def __str__(self) -> str:
         return self.title
+
 
 class Order(models.Model):
     PAYMENT_STATUS_PENDING = 'P'
     PAYMENT_STATUS_COMPLETE = 'C'
     PAYMENT_STATUS_FAILED = 'F'
     PAYMENT_STATUS_CHOICES = [
-        (PAYMENT_STATUS_PENDING,'Pending'),
-        (PAYMENT_STATUS_COMPLETE,'Complete'),
-        (PAYMENT_STATUS_FAILED,'Failed')
+        (PAYMENT_STATUS_PENDING, 'Pending'),
+        (PAYMENT_STATUS_COMPLETE, 'Complete'),
+        (PAYMENT_STATUS_FAILED, 'Failed')
     ]
