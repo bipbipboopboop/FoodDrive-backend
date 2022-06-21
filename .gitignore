@@ -1,4 +1,5 @@
 __pycache__/*
+store/__pycache__/*
 .python-version
 .idea
 *.idea/*
