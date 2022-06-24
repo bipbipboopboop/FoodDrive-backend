@@ -63,7 +63,7 @@ class Order(models.Model):
 class OrderItem(models.Model):
     order = models.ForeignKey(
         Order, on_delete=models.Case, related_name="order_item")
-    quantity = models.IntegerField(max_length=255)
+    quantity = models.IntegerField()
     product = models.ForeignKey(Product, on_delete=models.CASCADE)
 
     def __str__(self) -> str:
