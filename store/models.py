@@ -53,8 +53,21 @@ class Order(models.Model):
     shop = models.ForeignKey(
         Shop, on_delete=models.CASCADE, related_name=ORDERS_RELATED_NAME, null=True, blank=True)
 
+    is_checked_out = models.BooleanField(default=False)
+    # order_item
+
     def __str__(self) -> str:
         return self.payment_status
+
+
+class OrderItem(models.Model):
+    order = models.ForeignKey(
+        Order, on_delete=models.Case, related_name="order_item")
+    quantity = models.IntegerField(max_length=255)
+    product = models.ForeignKey(Product, on_delete=models.CASCADE)
+
+    def __str__(self) -> str:
+        return f'{self.order} - {self.product} - {self.quantity}'
 
 
 class Customer(models.Model):

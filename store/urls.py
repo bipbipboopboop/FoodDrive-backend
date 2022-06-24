@@ -4,10 +4,10 @@ from . import views
 
 
 router = DefaultRouter()
-router.register('products', views.ProductViewSet)
+router.register('products', views.ProductViewSet, basename='Product')
 router.register('owners', views.OwnerViewSet)
-router.register('orders', views.OrderViewSet)
-router.register('shops', views.ShopViewSet)
+router.register('orders', views.OrderViewSet, basename='Order')
+router.register('shops', views.ShopViewSet, basename='shops')
 
 
 products_router = routers.NestedDefaultRouter(
@@ -15,12 +15,17 @@ products_router = routers.NestedDefaultRouter(
 products_router.register('reviews', views.ReviewViewSet,
                          basename='product-reviews')
 
+# /store/shops/1/products
 shops_router = routers.NestedDefaultRouter(
     router, 'shops', lookup='shop')
+shops_router.register('products', views.ProductViewSet,
+                      basename='shop-products')
 shops_router.register('reviews', views.ReviewViewSet,
                       basename='shop-reviews')
 shops_router.register('orders', views.OrderViewSet,
                       basename='shop-orders')
+
+# /store/shops/1/products/1/review
 
 
 orders_router = routers.NestedDefaultRouter(
