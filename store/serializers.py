@@ -8,7 +8,7 @@ class CustomerSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Customer
-        fields = '__all__'
+        fields = ['id', 'user_id', 'birth_date']
 
 
 class ReviewSerializer(serializers.ModelSerializer):

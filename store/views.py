@@ -1,8 +1,9 @@
 from rest_framework import viewsets
-from rest_framework.response import Response
+from rest_framework.mixins import CreateModelMixin, RetrieveModelMixin, UpdateModelMixin
+from rest_framework.viewsets import GenericViewSet
 
-from .serializers import OrderSerializer, OwnerSerializer, ProductSerializer, ReviewSerializer, ShopSerializer
-from .models import Order, Owner, Product, Review, Shop
+from .serializers import CustomerSerializer, OrderSerializer, OwnerSerializer, ProductSerializer, ReviewSerializer, ShopSerializer
+from .models import Customer, Order, Owner, Product, Review, Shop
 
 from pprint import pprint
 
@@ -50,3 +51,10 @@ class OwnerViewSet(viewsets.ModelViewSet):
 class OrderViewSet(viewsets.ModelViewSet):
     queryset = Order.objects.all()
     serializer_class = OrderSerializer
+
+# We don't really need a list of customers
+
+
+class CustomerViewSet(CreateModelMixin, RetrieveModelMixin, UpdateModelMixin, GenericViewSet):
+    queryset = Customer.objects.all()
+    serializer_class = CustomerSerializer
