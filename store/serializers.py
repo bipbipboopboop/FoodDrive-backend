@@ -2,21 +2,23 @@ from rest_framework import serializers
 
 from store.models import Customer, Order, Owner, Product, Review, Shop
 from main.models import User
-
-
-class CustomerSerializer(serializers.ModelSerializer):
-
-    class Meta:
-        model = Customer
-        fields = ['id', 'user_id', 'birth_date']
+from pprint import pprint
 
 
 class ReviewSerializer(serializers.ModelSerializer):
-    customer = CustomerSerializer(many=False)
 
     class Meta:
         model = Review
-        fields = '__all__'
+        fields = ['product', 'shop', 'customer',
+                  'description', 'date', ]
+
+
+class CustomerSerializer(serializers.ModelSerializer):
+    reviews = ReviewSerializer(many=True)
+
+    class Meta:
+        model = Customer
+        fields = ['id', 'user_id', 'birth_date', 'reviews']
 
 
 class ProductSerializer(serializers.ModelSerializer):

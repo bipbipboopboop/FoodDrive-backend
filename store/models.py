@@ -120,7 +120,7 @@ class Review(models.Model):
     shop = models.ForeignKey(
         Shop, on_delete=models.CASCADE, related_name=REVIEWS_RELATED_NAME, null=True, blank=True)
     customer = models.ForeignKey(
-        Customer, on_delete=models.CASCADE, null=True, blank=True)
+        Customer, on_delete=models.CASCADE, null=True, blank=True, related_name=REVIEWS_RELATED_NAME)
     description = models.TextField(null=True, blank=True)
     date = models.DateField(auto_now_add=True)
 
