@@ -31,6 +31,8 @@ class Product(models.Model):
     stock = models.IntegerField()
     shop = models.ForeignKey(
         Shop, on_delete=models.CASCADE, related_name=PRODUCTS_RELATED_NAME, null=True, blank=True)
+    slug = models.SlugField()
+    image_link = models.TextField()
     # orders
     # reviews
 
