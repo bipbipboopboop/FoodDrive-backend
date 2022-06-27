@@ -1,6 +1,11 @@
 from rest_framework import viewsets
 from rest_framework.mixins import CreateModelMixin, RetrieveModelMixin, UpdateModelMixin
 from rest_framework.viewsets import GenericViewSet
+from rest_framework.decorators import action
+from rest_framework.response import Response
+from rest_framework.permissions import IsAuthenticated, AllowAny
+
+from django.shortcuts import get_object_or_404
 
 from .serializers import CustomerSerializer, OrderSerializer, OwnerSerializer, ProductSerializer, ReviewSerializer, ShopSerializer
 from .models import Customer, Order, Owner, Product, Review, Shop
@@ -58,3 +63,25 @@ class OrderViewSet(viewsets.ModelViewSet):
 class CustomerViewSet(CreateModelMixin, RetrieveModelMixin, UpdateModelMixin, GenericViewSet):
     queryset = Customer.objects.all()
     serializer_class = CustomerSerializer
+    permission_classes = [IsAuthenticated]
+    # Available on list view /customers/me
+
+    def get_permissions(self):
+        if self.request.method == 'GET':
+            return [AllowAny()]
+        else:
+            return [IsAuthenticated()]
+
+    @action(detail=False, methods=['GET', 'PUT'])
+    def me(self, request):
+        (current_customer, created) = Customer.objects.get_or_create(
+            user_id=request.user.id)
+        if request.method == 'GET':
+            serializer = CustomerSerializer(current_customer)
+            return Response(serializer.data)
+        elif request.method == 'PUT':
+            serializer = CustomerSerializer(
+                current_customer, request.data)
+            serializer.is_valid(raise_exception=True)
+            serializer.save()
+            return Response(serializer.data)

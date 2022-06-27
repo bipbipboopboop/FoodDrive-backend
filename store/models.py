@@ -73,7 +73,7 @@ class OrderItem(models.Model):
 class Customer(models.Model):
     user = models.OneToOneField(
         settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
-    birth_date = models.DateField()
+    birth_date = models.DateField(null=True, blank=True)
     # reviews
 
     @admin.display(ordering='user__first_name')

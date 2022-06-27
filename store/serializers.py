@@ -15,6 +15,7 @@ class ReviewSerializer(serializers.ModelSerializer):
 
 class CustomerSerializer(serializers.ModelSerializer):
     reviews = ReviewSerializer(many=True)
+    user_id = serializers.IntegerField(read_only=True)
 
     class Meta:
         model = Customer
