@@ -1,5 +1,6 @@
 from rest_framework import serializers
 
+
 from store.models import Customer, Order, Owner, Product, Review, Shop
 from main.models import User
 from pprint import pprint
@@ -33,7 +34,7 @@ class ProductSerializer(serializers.ModelSerializer):
 class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
-        fields = ['username', 'first_name', 'email']
+        fields = ['username', 'first_name', 'email', 'is_vendor']
 
 
 class ShopSerializer(serializers.ModelSerializer):

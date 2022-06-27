@@ -98,7 +98,6 @@ class Customer(models.Model):
 class Owner(models.Model):
     user = models.OneToOneField(
         settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
-
     shop = models.ForeignKey(
         Shop, on_delete=models.DO_NOTHING, related_name=OWNERS_RELATED_NAME)
 

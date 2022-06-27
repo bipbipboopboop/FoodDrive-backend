@@ -5,7 +5,7 @@ from django.contrib.auth.models import AbstractUser
 
 class User(AbstractUser):
     email = models.EmailField(unique=True)
-
+    is_vendor = models.BooleanField()
     USERNAME_FIELD = 'email'
     REQUIRED_FIELDS = ['username']
 
