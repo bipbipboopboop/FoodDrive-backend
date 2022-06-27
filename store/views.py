@@ -48,9 +48,30 @@ class ReviewViewSet(viewsets.ModelViewSet):
             return None
 
 
-class OwnerViewSet(viewsets.ModelViewSet):
+class OwnerViewSet(CreateModelMixin, RetrieveModelMixin, UpdateModelMixin, GenericViewSet):
     queryset = Owner.objects.all()
     serializer_class = OwnerSerializer
+    permission_classes = [IsAuthenticated]
+
+    def get_permissions(self):
+        if self.request.method == 'GET':
+            return [AllowAny()]
+        else:
+            return [IsAuthenticated()]
+
+    @action(detail=False, methods=['GET', 'PUT'])
+    def me(self, request):
+        (current_owner, created) = Owner.objects.get_or_create(
+            user_id=request.user.id)
+        if request.method == 'GET':
+            serializer = OwnerSerializer(current_owner)
+            return Response(serializer.data)
+        elif request.method == 'PUT':
+            serializer = OwnerSerializer(
+                current_owner, request.data)
+            serializer.is_valid(raise_exception=True)
+            serializer.save()
+            return Response(serializer.data)
 
 
 class OrderViewSet(viewsets.ModelViewSet):
