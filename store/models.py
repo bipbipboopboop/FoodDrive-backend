@@ -13,6 +13,8 @@ class Shop(models.Model):
     name = models.CharField(max_length=255)
     description = models.TextField(null=True, blank=True)
     address = models.TextField(null=True, blank=True)
+    slug = models.SlugField()
+    image_link = models.TextField()
     # owners
     # products
     # orders
