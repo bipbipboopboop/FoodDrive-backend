@@ -39,6 +39,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'rest_framework',
+    'corsheaders',
     'djoser',
     'store',
     'main'
@@ -47,6 +48,7 @@ INSTALLED_APPS = [
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
+    'corsheaders.middleware.CorsMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
@@ -138,12 +140,14 @@ REST_FRAMEWORK = {
 
 AUTH_USER_MODEL = 'main.User'
 
+
 DJOSER = {
     'SERIALIZERS': {
         'user_create': 'main.serializers.UserCreateSerializer',
         'user': 'main.serializers.UserSerializer',
         'current_user': 'main.serializers.UserSerializer',
     },
+    'LOGIN_FIELD': 'main.User.email'
 }
 
 SIMPLE_JWT = {
@@ -151,4 +155,7 @@ SIMPLE_JWT = {
     'ACCESS_TOKEN_LIFETIME': timedelta(days=5)
 }
 
+CORS_ALLOWED_ORIGINS = [
+    'http://localhost:3000',
+]
 # eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNjU2MTQwMDAyLCJpYXQiOjE2NTYxMzk3MDIsImp0aSI6IjNkZjFjM2IxYTkyZDQwOWQ5ODA2MWIwOWU2OTEyYWYyIiwidXNlcl9pZCI6M30.S6Li95TDgGV99BMcVQ4m0pO9uXv6AWDSk7glZbAE3wE
