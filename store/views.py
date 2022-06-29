@@ -54,7 +54,7 @@ class OwnerViewSet(CreateModelMixin, RetrieveModelMixin, UpdateModelMixin, Gener
     permission_classes = [IsAuthenticated]
 
     def get_permissions(self):
-        if self.request.method == 'GET':
+        if self.request.method == 'GET' or self.request.method == "POST":
             return [AllowAny()]
         else:
             return [IsAuthenticated()]

@@ -46,8 +46,8 @@ class ShopSerializer(serializers.ModelSerializer):
 
 
 class OwnerSerializer(serializers.ModelSerializer):
-    shop = ShopSerializer(many=False, read_only=True)
-    user = UserSerializer(many=False, read_only=True)
+    # shop = ShopSerializer(many=False, read_only=True)
+    # user = UserSerializer(many=False, read_only=True)
 
     class Meta:
         model = Owner
