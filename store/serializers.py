@@ -54,6 +54,13 @@ class OwnerSerializer(serializers.ModelSerializer):
         fields = '__all__'
 
 
+class OwnerCreateSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = Owner
+        fields = '__all__'
+
+
 class OrderSerializer(serializers.ModelSerializer):
     class Meta:
         model = Order

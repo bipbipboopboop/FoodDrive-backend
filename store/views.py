@@ -7,7 +7,7 @@ from rest_framework.permissions import IsAuthenticated, AllowAny
 
 from django.shortcuts import get_object_or_404
 
-from .serializers import CustomerSerializer, OrderSerializer, OwnerSerializer, ProductSerializer, ReviewSerializer, ShopSerializer
+from .serializers import CustomerSerializer, OrderSerializer, OwnerCreateSerializer, OwnerSerializer, ProductSerializer, ReviewSerializer, ShopSerializer
 from .models import Customer, Order, Owner, Product, Review, Shop
 
 from pprint import pprint
@@ -50,11 +50,16 @@ class ReviewViewSet(viewsets.ModelViewSet):
 
 class OwnerViewSet(CreateModelMixin, RetrieveModelMixin, UpdateModelMixin, GenericViewSet):
     queryset = Owner.objects.all()
-    serializer_class = OwnerSerializer
     permission_classes = [IsAuthenticated]
+    # serializer_class = OwnerSerializer
+
+    def get_serializer_class(self):
+        if self.action == 'create':
+            return OwnerCreateSerializer
+        return OwnerSerializer
 
     def get_permissions(self):
-        if self.request.method == 'GET':
+        if self.request.method == 'GET' or self.request.method == "POST":
             return [AllowAny()]
         else:
             return [IsAuthenticated()]
