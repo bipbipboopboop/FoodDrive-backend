@@ -23,15 +23,6 @@ class CustomerSerializer(serializers.ModelSerializer):
         fields = ['id', 'user_id', 'birth_date', 'reviews']
 
 
-class ProductSerializer(serializers.ModelSerializer):
-    reviews = ReviewSerializer(many=True, read_only=True)
-
-    class Meta:
-        model = Product
-        fields = ['id', 'title', 'description', 'unit_price',
-                  'stock', 'shop', 'slug', 'image_link', 'reviews']
-
-
 class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
@@ -44,6 +35,25 @@ class ShopSerializer(serializers.ModelSerializer):
     class Meta:
         model = Shop
         fields = '__all__'
+
+
+class ProductSerializer(serializers.ModelSerializer):
+    reviews = ReviewSerializer(many=True, read_only=True)
+    shop = ShopSerializer()
+
+    class Meta:
+        model = Product
+        fields = ['id', 'title', 'description', 'unit_price',
+                  'stock', 'shop', 'slug', 'image_link', 'reviews']
+
+
+class ProductCreateSerializer(serializers.ModelSerializer):
+    reviews = ReviewSerializer(many=True, read_only=True)
+
+    class Meta:
+        model = Product
+        fields = ['id', 'title', 'description', 'unit_price',
+                  'stock', 'shop', 'slug', 'image_link', 'reviews']
 
 
 class OwnerSerializer(serializers.ModelSerializer):
