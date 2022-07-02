@@ -73,6 +73,9 @@ class OwnerCreateSerializer(serializers.ModelSerializer):
 
 
 class OrderSerializer(serializers.ModelSerializer):
+    products = ProductSerializer(many=True)
+
     class Meta:
         model = Order
-        fields = '__all__'
+        fields = ['products', 'payment_status',
+                  'shop', 'is_checked_out', 'order_items']

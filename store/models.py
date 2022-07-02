@@ -57,8 +57,11 @@ class Order(models.Model):
     shop = models.ForeignKey(
         Shop, on_delete=models.CASCADE, related_name=ORDERS_RELATED_NAME, null=True, blank=True)
 
+    user = models.OneToOneField(
+        settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+
     is_checked_out = models.BooleanField(default=False)
-    # order_item
+    # order_items
 
     def __str__(self) -> str:
         return self.payment_status
@@ -66,7 +69,7 @@ class Order(models.Model):
 
 class OrderItem(models.Model):
     order = models.ForeignKey(
-        Order, on_delete=models.Case, related_name="order_item")
+        Order, on_delete=models.Case, related_name="order_items")
     quantity = models.IntegerField()
     product = models.ForeignKey(Product, on_delete=models.CASCADE)
 
