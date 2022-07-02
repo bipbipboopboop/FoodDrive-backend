@@ -39,7 +39,7 @@ class ShopSerializer(serializers.ModelSerializer):
 
 class ProductSerializer(serializers.ModelSerializer):
     reviews = ReviewSerializer(many=True, read_only=True)
-    shop = ShopSerializer()
+    shop = ShopSerializer(read_only=True)
 
     class Meta:
         model = Product
