@@ -132,3 +132,15 @@ class Review(models.Model):
 
     def __str__(self):
         return f'{self.customer.user.first_name} - {self.description}'
+
+
+class Cart(models.Model):
+    # cart_items
+    pass
+
+
+class CartItem(models.Model):
+    cart = models.ForeignKey(
+        Cart, on_delete=models.CASCADE, related_name='cart_items')
+    product = models.ForeignKey(Product, on_delete=models.CASCADE)
+    quantity = models.PositiveSmallIntegerField()
