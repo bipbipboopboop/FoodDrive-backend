@@ -60,7 +60,6 @@ class Order(models.Model):
     user = models.OneToOneField(
         settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
 
-    is_checked_out = models.BooleanField(default=False)
     # order_items
 
     def __str__(self) -> str:
@@ -69,9 +68,11 @@ class Order(models.Model):
 
 class OrderItem(models.Model):
     order = models.ForeignKey(
-        Order, on_delete=models.Case, related_name="order_items")
-    quantity = models.IntegerField()
-    product = models.ForeignKey(Product, on_delete=models.CASCADE)
+        Order, on_delete=models.PROTECT, related_name='order_items')
+    product = models.ForeignKey(
+        Product, on_delete=models.PROTECT, related_name='orderitems')
+    quantity = models.PositiveSmallIntegerField()
+    unit_price = models.DecimalField(max_digits=6, decimal_places=2)
 
     def __str__(self) -> str:
         return f'{self.order} - {self.product} - {self.quantity}'
@@ -135,8 +136,8 @@ class Review(models.Model):
 
 
 class Cart(models.Model):
-    # cart_items
-    pass
+    user = models.OneToOneField(
+        settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
 
 
 class CartItem(models.Model):
