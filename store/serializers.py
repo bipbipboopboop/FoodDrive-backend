@@ -1,7 +1,7 @@
 from rest_framework import serializers
 
 
-from store.models import Customer, Order, Owner, Product, Review, Shop
+from store.models import Cart, CartItem, Customer, Order, Owner, Product, Review, Shop
 from main.models import User
 from pprint import pprint
 
