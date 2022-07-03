@@ -114,10 +114,15 @@ class CustomerViewSet(CreateModelMixin, RetrieveModelMixin, UpdateModelMixin, Ge
             return Response(serializer.data)
 
 
-class CartViewSet(CreateModelMixin,
-                  RetrieveModelMixin,
-                  DestroyModelMixin,
-                  GenericViewSet):
+# class CartViewSet(CreateModelMixin,
+#                   RetrieveModelMixin,
+#                   DestroyModelMixin,
+#                   GenericViewSet):
+#     queryset = Cart.objects.prefetch_related('cart_items__product').all()
+#     serializer_class = CartSerializer
+
+
+class CartViewSet(viewsets.ModelViewSet):
     queryset = Cart.objects.prefetch_related('cart_items__product').all()
     serializer_class = CartSerializer
 
