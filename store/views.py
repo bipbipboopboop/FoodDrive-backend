@@ -9,7 +9,7 @@ from django.shortcuts import get_object_or_404
 
 from store.cart_serializers import AddCartItemSerializer, CartItemSerializer, CartSerializer, UpdateCartItemSerializer
 
-from .serializers import CustomerSerializer, OrderSerializer, OwnerCreateSerializer, OwnerSerializer, ProductSerializer, ReviewSerializer, ShopSerializer
+from .serializers import CreateOrderSerializer, CustomerSerializer, OrderSerializer, OwnerCreateSerializer, OwnerSerializer, ProductSerializer, ReviewSerializer, ShopSerializer, UpdateOrderSerializer
 from .models import CartItem, Customer, Order, Owner, Product, Review, Shop, Cart
 
 from pprint import pprint
@@ -107,14 +107,6 @@ class CustomerViewSet(CreateModelMixin, RetrieveModelMixin, UpdateModelMixin, Ge
             serializer.is_valid(raise_exception=True)
             serializer.save()
             return Response(serializer.data)
-
-
-# class CartViewSet(CreateModelMixin,
-#                   RetrieveModelMixin,
-#                   DestroyModelMixin,
-#                   GenericViewSet):
-#     queryset = Cart.objects.prefetch_related('cart_items__product').all()
-#     serializer_class = CartSerializer
 
 
 class CartViewSet(viewsets.ModelViewSet):
