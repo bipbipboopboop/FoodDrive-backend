@@ -1,4 +1,4 @@
-from rest_framework.routers import SimpleRouter, DefaultRouter
+from rest_framework.routers import DefaultRouter
 from rest_framework_nested import routers
 from . import views
 from store.cart_views import CartView
@@ -38,10 +38,5 @@ orders_router.register('products', views.ProductViewSet,
                        basename='order-products')
 
 
-# carts_router = routers.NestedDefaultRouter(router, 'carts', lookup='cart')
-# carts_router.register('items', views.CartItemViewSet,
-#                       basename='cart-items')
-
 urlpatterns = router.urls + products_router.urls + \
-    shops_router.urls + orders_router.urls 
-    # + carts_router.urls
+    shops_router.urls + orders_router.urls
