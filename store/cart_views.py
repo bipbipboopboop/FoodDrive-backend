@@ -24,7 +24,6 @@ class CartView(viewsets.GenericViewSet):
     def view(self, request: HttpRequest, *args, **kwargs) -> Response:
         try:
             user_id = request.user.id
-            user_id=3
             cart = Cart.objects.filter(user__user_id=user_id, is_checkout=False).first()
             cart_items = CartItem.objects.filter(cart=cart)
             result = CartItemSerializer(cart_items, many=True).data
@@ -40,7 +39,6 @@ class CartView(viewsets.GenericViewSet):
     def update_item(self, request: HttpRequest, *args, **kwargs) -> Response:
         try:
             user_id = request.user.id
-            user_id=3
             shop_id = request.data.get('shop')
             product_id = request.data.get('product')
             quantity = request.data.get('quantity')
