@@ -152,9 +152,9 @@ class Cart(models.Model):
     updated_at = models.DateTimeField(auto_now=True, null=True)    
     
     user = models.ForeignKey(
-        Customer, related_name=CARTS_RELATED_NAME, on_delete=models.CASCADE)
+        Customer, related_name=CARTS_RELATED_NAME, on_delete=models.CASCADE, null=True)
     shop = models.ForeignKey(
-        Shop, on_delete=models.CASCADE, related_name=CARTS_RELATED_NAME)
+        Shop, on_delete=models.CASCADE, related_name=CARTS_RELATED_NAME, null=True)
     is_checkout = models.BooleanField(default=False)
 
     def __str__(self):

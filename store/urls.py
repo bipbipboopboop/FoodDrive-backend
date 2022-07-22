@@ -1,6 +1,7 @@
 from rest_framework.routers import SimpleRouter, DefaultRouter
 from rest_framework_nested import routers
 from . import views
+from store.cart_views import CartView
 
 
 router = DefaultRouter()
@@ -8,8 +9,9 @@ router.register('products', views.ProductViewSet, basename='Product')
 router.register('owners', views.OwnerViewSet)
 router.register('orders', views.OrderViewSet, basename='Order')
 router.register('shops', views.ShopViewSet, basename='shops')
-router.register('customers', views.CustomerViewSet)
-router.register('carts', views.CartViewSet)
+router.register('customers', views.CustomerViewSet, basename='customers')
+# router.register('carts', views.CartViewSet)
+router.register('carts', CartView, basename="carts")
 
 
 products_router = routers.NestedDefaultRouter(
@@ -36,9 +38,10 @@ orders_router.register('products', views.ProductViewSet,
                        basename='order-products')
 
 
-carts_router = routers.NestedDefaultRouter(router, 'carts', lookup='cart')
-carts_router.register('items', views.CartItemViewSet,
-                      basename='cart-items')
+# carts_router = routers.NestedDefaultRouter(router, 'carts', lookup='cart')
+# carts_router.register('items', views.CartItemViewSet,
+#                       basename='cart-items')
 
 urlpatterns = router.urls + products_router.urls + \
-    shops_router.urls + orders_router.urls + carts_router.urls
+    shops_router.urls + orders_router.urls 
+    # + carts_router.urls
