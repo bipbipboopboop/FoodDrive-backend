@@ -89,13 +89,13 @@ class Owner(models.Model):
 
 
 class Order(models.Model):
-    PAYMENT_STATUS_PENDING = 'PENDING'
-    PAYMENT_STATUS_COMPLETE = 'COMPLETE'
-    PAYMENT_STATUS_FAILED = 'FAILED'
-    PAYMENT_STATUS_CHOICES = [
-        (PAYMENT_STATUS_PENDING, 'Pending'),
-        (PAYMENT_STATUS_FAILED, 'Failed'),
-        (PAYMENT_STATUS_COMPLETE, 'Complete')
+    ORDER_STATUS_PENDING = 'PENDING'
+    ORDER_STATUS_COMPLETE = 'COMPLETE'
+    ORDER_STATUS_FAILED = 'FAILED'
+    ORDER_STATUS_CHOICES = [
+        (ORDER_STATUS_PENDING, 'Pending'),
+        (ORDER_STATUS_FAILED, 'Failed'),
+        (ORDER_STATUS_COMPLETE, 'Complete')
     ]
 
     created_at = models.DateTimeField(auto_now_add=True, null=True)
@@ -105,7 +105,7 @@ class Order(models.Model):
         Product, related_name=PRODUCTS_RELATED_NAME)
 
     payment_status = models.CharField(
-        max_length=255, choices=PAYMENT_STATUS_CHOICES, default=PAYMENT_STATUS_PENDING)
+        max_length=255, choices=ORDER_STATUS_CHOICES, default=ORDER_STATUS_PENDING)
     shop = models.ForeignKey(
         Shop, on_delete=models.SET_NULL, related_name=ORDERS_RELATED_NAME, null=True)
 

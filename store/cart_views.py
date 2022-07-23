@@ -6,24 +6,9 @@ from rest_framework.permissions import IsAuthenticated, AllowAny, IsAdminUser
 from rest_framework import viewsets, status
 from rest_framework.response import Response
 from rest_framework.decorators import action
-from rest_framework import serializers
 
 from store.models import Cart, CartItem, Customer, Shop, Product
-from store.serializers import SimpleProductSerializer
-
-
-class CartItemSerializer(serializers.ModelSerializer):
-    product = SimpleProductSerializer(many=False, read_only=True)
-
-    class Meta:
-        model = CartItem
-        fields = ['id', 'product', 'quantity']
-
-
-class UpdateCartSerializer(serializers.Serializer):
-    shop = serializers.IntegerField()
-    product = serializers.IntegerField()
-    quantity = serializers.IntegerField()
+from store.cart_serializers import CartItemSerializer, UpdateCartSerializer
 
 
 class CartView(viewsets.GenericViewSet):
@@ -56,7 +41,7 @@ class CartView(viewsets.GenericViewSet):
                 status=status.HTTP_404_NOT_FOUND
             )
 
-    @action(detail=False, methods=['post'], url_path=r'update')
+    @action(detail=True, methods=['post'], url_path=r'update')
     def update_item(self, request: HttpRequest, *args, **kwargs) -> Response:
         try:
             user_id = request.user.id
