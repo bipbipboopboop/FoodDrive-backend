@@ -70,7 +70,7 @@ class Owner(models.Model):
         Shop, on_delete=models.SET_NULL, related_name=OWNERS_RELATED_NAME, null=True)
 
     # https://stackoverflow.com/questions/38388423/what-does-on-delete-do-on-django-models
-    # DO_NOTHING: Probably a very bad idea since this would create integrity issues in your database 
+    # DO_NOTHING: Probably a very bad idea since this would create integrity issues in your database
     # (referencing an object that actually doesn't exist). SQL equivalent:
 
     @admin.display(ordering='user__first_name')
@@ -130,7 +130,6 @@ class OrderItem(models.Model):
         return f'{self.order} - {self.product} - {self.quantity}'
 
 
-
 class Review(models.Model):
     # One-to-many relation, related_name means that in Product Model, there will be a field called reviews
     product = models.ForeignKey(
@@ -149,13 +148,14 @@ class Review(models.Model):
 class Cart(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid4)
     created_at = models.DateTimeField(auto_now_add=True, null=True)
-    updated_at = models.DateTimeField(auto_now=True, null=True)    
-    
+    updated_at = models.DateTimeField(auto_now=True, null=True)
+
     user = models.ForeignKey(
         Customer, related_name=CARTS_RELATED_NAME, on_delete=models.CASCADE, null=True)
     shop = models.ForeignKey(
         Shop, on_delete=models.CASCADE, related_name=CARTS_RELATED_NAME, null=True)
     is_checkout = models.BooleanField(default=False)
+    # cart_items
 
     def __str__(self):
         return f'{self.id} - {self.user} - {self.shop}'

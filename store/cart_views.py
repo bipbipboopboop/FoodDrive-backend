@@ -1,3 +1,4 @@
+
 from django.http import HttpRequest
 
 from rest_framework.permissions import IsAuthenticated, AllowAny, IsAdminUser
@@ -12,16 +13,29 @@ from store.serializers import SimpleProductSerializer
 
 
 class CartItemSerializer(serializers.ModelSerializer):
-    product = SimpleProductSerializer(many=False)
+    product = SimpleProductSerializer(many=False, read_only=True)
 
     class Meta:
         model = CartItem
         fields = ['id', 'product', 'quantity']
 
 
+class UpdateCartSerializer(serializers.Serializer):
+    shop = serializers.IntegerField()
+    product = serializers.IntegerField()
+    quantity = serializers.IntegerField()
+
+
 class CartView(viewsets.GenericViewSet):
     serializer_class = CartItemSerializer
     permission_classes = [IsAuthenticated]
+
+    def get_serializer_class(self):
+        if self.request.method == 'GET':
+            return CartItemSerializer
+        if self.request.method == 'POST':
+            return UpdateCartSerializer
+        return CartItemSerializer
 
     def get_queryset(self):
         user_id = self.request.user.id
