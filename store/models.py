@@ -7,7 +7,7 @@ from django.contrib import admin
 ORDERS_RELATED_NAME = 'orders'
 PRODUCTS_RELATED_NAME = 'products'
 REVIEWS_RELATED_NAME = 'reviews'
-OWNERS_RELATED_NAME = 'owners'
+OWNER_RELATED_NAME = 'owners'
 CARTS_RELATED_NAME = 'carts'
 
 
@@ -17,7 +17,7 @@ class Shop(models.Model):
     address = models.TextField(null=True, blank=True)
     slug = models.SlugField()
     image_link = models.TextField()
-    # owners
+    # owner
     # products
     # orders
     # reviews
@@ -67,7 +67,7 @@ class Owner(models.Model):
     user = models.OneToOneField(
         settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
     shop = models.OneToOneField(
-        Shop, on_delete=models.SET_NULL, related_name=OWNERS_RELATED_NAME, null=True)
+        Shop, on_delete=models.SET_NULL, related_name=OWNER_RELATED_NAME, null=True)
 
     # https://stackoverflow.com/questions/38388423/what-does-on-delete-do-on-django-models
     # DO_NOTHING: Probably a very bad idea since this would create integrity issues in your database
@@ -104,18 +104,18 @@ class Order(models.Model):
     products = models.ManyToManyField(
         Product, related_name=PRODUCTS_RELATED_NAME)
 
-    payment_status = models.CharField(
+    order_status = models.CharField(
         max_length=255, choices=ORDER_STATUS_CHOICES, default=ORDER_STATUS_PENDING)
     shop = models.ForeignKey(
         Shop, on_delete=models.SET_NULL, related_name=ORDERS_RELATED_NAME, null=True)
 
-    user = models.OneToOneField(
+    customer = models.OneToOneField(
         Customer, related_name=ORDERS_RELATED_NAME, on_delete=models.SET_NULL, null=True)
 
     # order_items
 
     def __str__(self) -> str:
-        return self.payment_status
+        return self.order_status
 
 
 class OrderItem(models.Model):
@@ -150,7 +150,7 @@ class Cart(models.Model):
     created_at = models.DateTimeField(auto_now_add=True, null=True)
     updated_at = models.DateTimeField(auto_now=True, null=True)
 
-    user = models.ForeignKey(
+    customer = models.ForeignKey(
         Customer, related_name=CARTS_RELATED_NAME, on_delete=models.CASCADE, null=True)
     shop = models.ForeignKey(
         Shop, on_delete=models.CASCADE, related_name=CARTS_RELATED_NAME, null=True)
@@ -158,7 +158,7 @@ class Cart(models.Model):
     # cart_items
 
     def __str__(self):
-        return f'{self.id} - {self.user} - {self.shop}'
+        return f'{self.id} - {self.customer} - {self.shop}'
 
 
 class CartItem(models.Model):
@@ -169,3 +169,6 @@ class CartItem(models.Model):
 
     class Meta:
         unique_together = [['cart', 'product']]
+
+    def __str__(self):
+        return f'{self.cart} - {self.product}'

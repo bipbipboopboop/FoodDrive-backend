@@ -25,10 +25,27 @@ class CustomerSerializer(serializers.ModelSerializer):
         fields = ['id', 'user_id', 'birth_date', 'reviews']
 
 
+class SimpleCustomerSerializer(serializers.ModelSerializer):
+    name = serializers.SerializerMethodField()
+
+    def get_name(self, object):
+        return f'{object.user.first_name} {object.user.last_name}'
+
+    class Meta:
+        model = Customer
+        fields = ['id', 'name']
+
+
 class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
         fields = ['username', 'first_name', 'email', 'is_vendor']
+
+
+class SimpleShopSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Shop
+        fields = ['name', 'description']
 
 
 class ShopSerializer(serializers.ModelSerializer):
@@ -93,7 +110,8 @@ class OrderSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Order
-        fields = ['id', 'customer', 'placed_at', 'payment_status', 'items']
+        fields = ['id', 'customer',  'order_status',
+                  'items', 'created_at', 'shop']
 
 
 class UpdateOrderSerializer(serializers.ModelSerializer):
