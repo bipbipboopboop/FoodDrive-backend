@@ -1,11 +1,11 @@
 from rest_framework import viewsets, status
-from rest_framework.mixins import CreateModelMixin, ListModelMixin, RetrieveModelMixin, UpdateModelMixin
+from rest_framework.mixins import CreateModelMixin, RetrieveModelMixin, UpdateModelMixin
 from rest_framework.viewsets import GenericViewSet
 from rest_framework.decorators import action
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated, AllowAny, IsAdminUser
 
-from .serializers import CreateOrderSerializer, CustomerSerializer, OrderSerializer, OwnerCreateSerializer, OwnerSerializer, ProductSerializer, ReviewSerializer, ShopSerializer, UpdateOrderSerializer
+from .serializers import CreateOrderSerializer, CustomerSerializer, OrderSerializer, OwnerCreateSerializer, OwnerSerializer, ProductSerializer, ReviewSerializer, ShopSerializer
 from .models import Customer, Order, Owner, Product, Review, Shop
 
 from pprint import pprint
@@ -105,7 +105,7 @@ class CustomerViewSet(CreateModelMixin, RetrieveModelMixin, UpdateModelMixin, Ge
             return Response(serializer.data)
 
 
-class OrderViewSet(CreateModelMixin, ListModelMixin, RetrieveModelMixin, UpdateModelMixin, GenericViewSet):
+class OrderViewSet(viewsets.ModelViewSet):
     permission_classes = [IsAuthenticated]
 
     """
@@ -113,15 +113,22 @@ class OrderViewSet(CreateModelMixin, ListModelMixin, RetrieveModelMixin, UpdateM
     """
 
     def get_queryset(self):
+        if (self.request.user.is_staff):
+            return Order.objects.all()
         if(self.request.user.is_vendor):
             current_owner = Owner.get(user=self.request.user)
             shop = Shop.objects.get(owner=current_owner)
             return shop.orders
-        else:
-            return None
 
     def get_serializer_class(self):
         if (self.request.method == "GET"):
             return OrderSerializer
         if (self.request.method == "POST"):
             return CreateOrderSerializer
+        return OrderSerializer
+
+    def get_permissions(self):
+        if self.action in ['list']:
+            return [IsAdminUser()]
+        else:
+            return [IsAuthenticated()]

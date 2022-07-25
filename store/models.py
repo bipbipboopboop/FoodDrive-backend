@@ -101,16 +101,12 @@ class Order(models.Model):
     created_at = models.DateTimeField(auto_now_add=True, null=True)
     updated_at = models.DateTimeField(auto_now=True, null=True)
 
-    products = models.ManyToManyField(
-        Product, related_name=PRODUCTS_RELATED_NAME)
-
     order_status = models.CharField(
         max_length=255, choices=ORDER_STATUS_CHOICES, default=ORDER_STATUS_PENDING)
     shop = models.ForeignKey(
-        Shop, on_delete=models.SET_NULL, related_name=ORDERS_RELATED_NAME, null=True)
-
-    customer = models.OneToOneField(
-        Customer, related_name=ORDERS_RELATED_NAME, on_delete=models.SET_NULL, null=True)
+        Shop, on_delete=models.DO_NOTHING, related_name=ORDERS_RELATED_NAME)
+    customer = models.ForeignKey(
+        Customer, related_name=ORDERS_RELATED_NAME, on_delete=models.DO_NOTHING)
 
     # order_items
 
@@ -120,9 +116,9 @@ class Order(models.Model):
 
 class OrderItem(models.Model):
     order = models.ForeignKey(
-        Order, on_delete=models.PROTECT, related_name='order_items')
+        Order, on_delete=models.CASCADE, related_name='order_items')
     product = models.ForeignKey(
-        Product, on_delete=models.PROTECT, related_name='orderitems')
+        Product, on_delete=models.CASCADE, related_name='order_items')
     quantity = models.PositiveSmallIntegerField()
     unit_price = models.DecimalField(max_digits=6, decimal_places=2)
 

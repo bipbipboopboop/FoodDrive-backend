@@ -106,12 +106,12 @@ class OrderItemSerializer(serializers.ModelSerializer):
 
 
 class OrderSerializer(serializers.ModelSerializer):
-    items = OrderItemSerializer(many=True)
+    order_items = OrderItemSerializer(many=True)
 
     class Meta:
         model = Order
         fields = ['id', 'customer',  'order_status',
-                  'items', 'created_at', 'shop']
+                  'order_items', 'created_at', 'shop']
 
 
 class UpdateOrderSerializer(serializers.ModelSerializer):
@@ -134,10 +134,14 @@ class CreateOrderSerializer(serializers.Serializer):
     def save(self, **kwargs):
         with transaction.atomic():
             cart_id = self.validated_data['cart_id']
+            request = self.context['request']
+            current_cart = Cart.objects.get(id=cart_id)
+            current_shop = current_cart.shop
 
             customer = Customer.objects.get(
-                user_id=self.context['user_id'])
-            order = Order.objects.create(customer=customer)
+                user__id=request.user.id)
+            print(customer, current_shop)
+            order = Order.objects.create(customer=customer, shop=current_shop)
 
             cart_items = CartItem.objects \
                 .select_related('product') \
