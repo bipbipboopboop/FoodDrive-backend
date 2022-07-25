@@ -1,6 +1,8 @@
+from django.shortcuts import get_object_or_404
+
 from rest_framework import serializers
 from store.models import Cart, CartItem, Product
-from store.serializers import CustomerSerializer, ShopSerializer, SimpleCustomerSerializer, SimpleShopSerializer
+from store.serializers import CustomerSerializer, ProductSerializer, ShopSerializer, SimpleCustomerSerializer, SimpleShopSerializer
 
 
 class SimpleProductSerializer(serializers.ModelSerializer):
@@ -17,25 +19,44 @@ class CartItemSerializer(serializers.ModelSerializer):
         fields = ['id', 'product', 'quantity']
 
 
-class UpdateCartSerializer(serializers.ModelSerializer):
+class CartSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Cart
-        fields = ['cart_items']
+        fields = '__all__'
 
 
 class UpdateCartItemsSerializer(serializers.Serializer):
-    product_id = serializers.IntegerField()
-    quantity = serializers.IntegerField()
+    product_id = serializers.IntegerField(write_only=True)
+    quantity = serializers.IntegerField(write_only=True)
+
+    def create(self, validated_data):
+        product = Product.objects.get(
+            pk=validated_data.get('product_id'))
+        cart = Cart.objects.get(pk=validated_data.get('cart_id'))
+        cart_item = CartItem.objects.filter(
+            cart=cart, product=product)
+        quantity = validated_data.get('quantity')
+        if cart_item.exists():
+            cart_item = CartItem.objects.get(cart=cart, product=product)
+            cart_item.quantity = quantity
+            cart_item.save()
+        else:
+            cart_item = CartItem.objects.create(
+                cart=cart, product=product, quantity=quantity)
+        print('cart', cart)
+        return cart
 
 
-class CartSerializer(serializers.ModelSerializer):
+class SimpleCartSerializer(serializers.ModelSerializer):
     shop = SimpleShopSerializer()
     customer = SimpleCustomerSerializer()
+    cart_items = CartItemSerializer(many=True)
 
     class Meta:
         model = Cart
-        fields = ['id', 'customer', 'shop', 'customer', 'is_checkout']
+        fields = ['id', 'customer', 'shop',
+                  'customer', 'is_checkout', 'cart_items']
 
 
 class CreateCartSerializer(serializers.ModelSerializer):
@@ -43,16 +64,3 @@ class CreateCartSerializer(serializers.ModelSerializer):
     class Meta:
         model = Cart
         fields = ['customer', 'shop', 'cart_items']
-
-
-"""
-    id = models.UUIDField(primary_key=True, default=uuid4)
-    created_at = models.DateTimeField(auto_now_add=True, null=True)
-    updated_at = models.DateTimeField(auto_now=True, null=True)
-
-    customer = models.ForeignKey(
-        Customer, related_name=CARTS_RELATED_NAME, on_delete=models.CASCADE, null=True)
-    shop = models.ForeignKey(
-        Shop, on_delete=models.CASCADE, related_name=CARTS_RELATED_NAME, null=True)
-    is_checkout = models.BooleanField(default=False)
-"""

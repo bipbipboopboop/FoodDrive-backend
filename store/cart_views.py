@@ -13,7 +13,7 @@ from rest_framework.decorators import action
 from main.models import User
 
 from store.models import Cart, CartItem, Customer, Shop, Product
-from store.cart_serializers import CartItemSerializer, CartSerializer, CreateCartSerializer, UpdateCartItemsSerializer, UpdateCartSerializer
+from store.cart_serializers import CartSerializer, SimpleCartSerializer, CreateCartSerializer, UpdateCartItemsSerializer
 
 
 # class CartView(viewsets.GenericViewSet):
@@ -108,21 +108,25 @@ class CartViewSet(viewsets.ModelViewSet):
 
     def get_serializer_class(self):
         if self.request.method == "GET":
-            return CartSerializer
+            return SimpleCartSerializer
         if self.request.method == "POST":
             return CreateCartSerializer
-        if self.request.method == "PUT":
-            return UpdateCartSerializer
         if self.action == "my_cart":
             return UpdateCartItemsSerializer
-        # return CartSerializer
+        return CartSerializer
 
     @action(detail=False, methods=['GET', 'PUT'])
     def my_cart(self, request, *args, **kwargs):
-
+        print(self.request.method)
         newest_cart = self.get_queryset()
         if request.method in ['GET']:
-            serializer = CartSerializer(newest_cart)
+            serializer = SimpleCartSerializer(newest_cart)
             return Response(serializer.data)
-        # if request.method in ['PUT']:
-        #     pass
+        if request.method in ['PUT']:
+            cart_items_serializer = self.get_serializer(
+                data=request.data)
+            print('cart_items_serializer : ', cart_items_serializer)
+            cart_items_serializer.is_valid(raise_exception=True)
+            cart_items_serializer.save(cart_id=newest_cart.id)
+            print('cart_items_serializer.data : ', cart_items_serializer.data)
+            return Response(cart_items_serializer.data)
