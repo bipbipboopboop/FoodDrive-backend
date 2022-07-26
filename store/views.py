@@ -6,7 +6,7 @@ from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated, AllowAny, IsAdminUser
 
 from .serializers import CreateOrderSerializer, CustomerSerializer, OrderSerializer, OwnerCreateSerializer, OwnerSerializer, ProductSerializer, ReviewSerializer, ShopSerializer
-from .models import Customer, Order, Owner, Product, Review, Shop
+from .models import Cart, CartItem, Customer, Order, OrderItem, Owner, Product, Review, Shop
 
 from pprint import pprint
 
@@ -128,7 +128,44 @@ class OrderViewSet(viewsets.ModelViewSet):
         return OrderSerializer
 
     def get_permissions(self):
-        if self.action in ['list']:
-            return [IsAdminUser()]
-        else:
-            return [IsAuthenticated()]
+        # if self.action in ['list']:
+        #    return [IsAdminUser()]
+        # else:
+        return [IsAuthenticated()]
+
+    def create(self, request, *args, **kwargs):
+        current_customer = Customer.objects.get(user=request.user)
+        newest_cart = Cart.objects.filter(customer=current_customer,
+                                          is_checkout=False).first()
+        print(newest_cart)
+        current_cart_items = CartItem.objects.filter(
+            cart=newest_cart).values('product', 'quantity')
+        order = Order.objects.create(
+            shop=newest_cart.shop, customer=current_customer)
+
+        for item in current_cart_items:
+            OrderItem.objects.create(
+                order=order, product=item.product, quantity=item.quantity)
+
+        newest_cart.is_checkout = True
+        newest_cart.save()
+
+        return Response(data={}, status=status.HTTP_201_CREATED)
+
+
+"""
+POST /store/orders
+    - Cart ID
+
+1) Set current cart of Customer to is_order = True
+2) Create a new order by iterating through the cart_items and creating corresponding order_items
+3) Create new cart instance and tie it to this customer
+"""
+
+
+"""
+Customer
+I can add things into my cart
+If I logout and come back, my cart will still be there
+
+"""
