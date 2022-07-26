@@ -110,7 +110,7 @@ class OrderSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Order
-        fields = ['id', 'customer',  'order_status',
+        fields = ['id', 'customer', 'order_status',
                   'order_items', 'created_at', 'shop']
 
 
@@ -121,41 +121,52 @@ class UpdateOrderSerializer(serializers.ModelSerializer):
 
 
 class CreateOrderSerializer(serializers.Serializer):
-    # cart_id = serializers.UUIDField()
-
-    def validate_cart_id(self, cart_id):
-        if not Cart.objects.filter(pk=cart_id).exists():
-            raise serializers.ValidationError(
-                'No cart with the given ID was found.')
-        if CartItem.objects.filter(cart_id=cart_id).count() == 0:
-            raise serializers.ValidationError('The cart is empty.')
-        return cart_id
-
     def save(self, **kwargs):
-        with transaction.atomic():
-            cart_id = self.validated_data['cart_id']
-            request = self.context['request']
-            current_cart = Cart.objects.get(id=cart_id)
-            current_shop = current_cart.shop
 
-            customer = Customer.objects.get(
-                user__id=request.user.id)
-            print(customer, current_shop)
-            order = Order.objects.create(customer=customer, shop=current_shop)
+        cart = self.context['cart']
+        cart_items = CartItem.objects \
+            .select_related('product') \
+            .filter(cart=cart)
+        if not cart_items:
+            raise serializers.ValidationError('The cart is empty.')
 
-            cart_items = CartItem.objects \
-                .select_related('product') \
-                .filter(cart_id=cart_id)
-            order_items = [
-                OrderItem(
-                    order=order,
-                    product=item.product,
-                    unit_price=item.product.unit_price,
-                    quantity=item.quantity
-                ) for item in cart_items
-            ]
-            OrderItem.objects.bulk_create(order_items)
+        for item in cart_items:
+            order_for_item = Order.objects.filter(
+                order_status='Pending', customer=cart.customer).first()
+            if order_for_item is None:
+                order_for_item = Order.objects.create(
+                    shop=item.product.shop, customer=cart.customer)
 
-            Cart.objects.filter(pk=cart_id).update(is_checkout=True)
+            OrderItem.objects.create(
+                order=order_for_item, product=item.product, quantity=item.quantity)
 
-            return order
+        cart.is_checkout = True
+        cart.save()
+        return cart
+
+    # def save(self, **kwargs):
+    #     with transaction.atomic():
+    #         cart_id = self.validated_data['cart_id']
+
+    #         customer = Customer.objects.get(
+    #             user_id=self.context['user_id'])
+    #         order = Order.objects.create(customer=customer)
+
+    #         cart_items = CartItem.objects \
+    #             .select_related('product') \
+    #             .filter(cart_id=cart_id)
+    #         order_items = [
+    #             OrderItem(
+    #                 order=order,
+    #                 product=item.product,
+    #                 unit_price=item.product.unit_price,
+    #                 quantity=item.quantity
+    #             ) for item in cart_items
+    #         ]
+    #         OrderItem.objects.bulk_create(order_items)
+
+    #         Cart.objects.filter(pk=cart_id).delete()
+
+    #         order_created.send_robust(self.__class__, order=order)
+
+    #         return order

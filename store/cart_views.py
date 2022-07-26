@@ -56,14 +56,14 @@ class CartItemViewSet(viewsets.ModelViewSet):
     # queryset = CartItem.objects.all()
     serializer_class = CartItemSerializer
 
-    def get_my_container(self):
+    def get_my_cart(self):
         current_customer = get_object_or_404(Customer, user=self.request.user)
         (current_cart, created) = Cart.objects.get_or_create(
             customer=current_customer, is_checkout=False)
         return (current_cart, created)
 
     def get_queryset(self):
-        (current_cart, created) = self.get_my_container()
+        (current_cart, created) = self.get_my_cart()
         if not created:
             return current_cart.cart_items
         else:
@@ -75,7 +75,7 @@ class CartItemViewSet(viewsets.ModelViewSet):
         return CartItemSerializer
 
     def get_serializer_context(self):
-        return {'cart': self.get_my_container()[0]}
+        return {'cart': self.get_my_cart()[0]}
 
 
 """

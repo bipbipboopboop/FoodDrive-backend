@@ -1,5 +1,5 @@
 from django.contrib import admin
-from store.models import Cart, CartItem, Customer, Order, Owner, Product, Review, Shop
+from store.models import Cart, CartItem, Customer, Order, OrderItem, Owner, Product, Review, Shop
 from django.contrib.auth.admin import UserAdmin as BaseUserAdmin
 from django.contrib.contenttypes.admin import GenericTabularInline
 from .models import User
@@ -45,3 +45,4 @@ admin.site.register(Shop)
 admin.site.register(Order)
 admin.site.register(Cart)
 admin.site.register(CartItem)
+admin.site.register(OrderItem)

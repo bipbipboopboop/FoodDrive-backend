@@ -1,4 +1,5 @@
-from rest_framework import viewsets, status
+from django.shortcuts import get_object_or_404
+from rest_framework import viewsets
 from rest_framework.mixins import CreateModelMixin, RetrieveModelMixin, UpdateModelMixin
 from rest_framework.viewsets import GenericViewSet
 from rest_framework.decorators import action
@@ -106,11 +107,10 @@ class CustomerViewSet(CreateModelMixin, RetrieveModelMixin, UpdateModelMixin, Ge
 
 
 class OrderViewSet(viewsets.ModelViewSet):
-    permission_classes = [IsAuthenticated]
-
     """
     Only Vendors can see orders
     """
+    permission_classes = [IsAuthenticated]
 
     def get_queryset(self):
         if (self.request.user.is_staff):
@@ -121,35 +121,23 @@ class OrderViewSet(viewsets.ModelViewSet):
             return shop.orders
 
     def get_serializer_class(self):
-        if (self.request.method == "GET"):
-            return OrderSerializer
         if (self.request.method == "POST"):
             return CreateOrderSerializer
         return OrderSerializer
 
-    def get_permissions(self):
-        if self.action in ['list']:
-            return [IsAdminUser()]
+    def get_my_cart(self):
+        current_customer = get_object_or_404(Customer, user=self.request.user)
+        (current_cart, created) = Cart.objects.get_or_create(
+            customer=current_customer, is_checkout=False)
+
+        if not created:
+            return current_cart
         else:
-            return [IsAuthenticated()]
+            newest_cart = Cart.objects.create(customer=current_customer)
+            return newest_cart
 
-    def create(self, request, *args, **kwargs):
-        current_customer = Customer.objects.get(user=request.user)
-        newest_cart = Cart.objects.filter(customer=current_customer,
-                                          is_checkout=False).first()
-        current_cart_items = CartItem.objects.filter(
-            cart=newest_cart).values('product', 'quantity')
-        order = Order.objects.create(
-            shop=newest_cart.shop, customer=current_customer)
-
-        for item in current_cart_items:
-            OrderItem.objects.create(
-                order=order, product=item.product, quantity=item.quantity)
-
-        newest_cart.is_checkout = True
-        newest_cart.save()
-
-        return Response(data={}, status=status.HTTP_201_CREATED)
+    def get_serializer_context(self):
+        return {'cart': self.get_my_cart()}
 
 
 """
