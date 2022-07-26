@@ -7,8 +7,8 @@ from rest_framework.permissions import IsAuthenticated, IsAdminUser
 from rest_framework.response import Response
 from rest_framework.decorators import action
 
-from store.models import Cart, Customer
-from store.cart_serializers import CartSerializer, SimpleCartSerializer, MyCartSerializer
+from store.models import Cart, CartItem, Customer
+from store.cart_serializers import AddCartItemSerializer, CartItemSerializer, CartSerializer, SimpleCartSerializer, MyCartSerializer
 
 
 class CartViewSet(viewsets.ModelViewSet):
@@ -34,13 +34,11 @@ class CartViewSet(viewsets.ModelViewSet):
     def get_serializer_class(self):
         if self.request.method == "GET":
             return SimpleCartSerializer
-        if self.request.method == "PUT":
-            return MyCartSerializer
         if self.action == "my_cart":
             return MyCartSerializer
         return CartSerializer
 
-    @action(detail=False, methods=['GET', 'PUT'])
+    @action(detail=False, methods=['GET'])
     def my_cart(self, request, *args, **kwargs):
         print(self.request.method)
         current_customer = get_object_or_404(Customer, user=request.user)
@@ -53,14 +51,31 @@ class CartViewSet(viewsets.ModelViewSet):
             serializer = self.get_serializer(instance=newest_cart)
             return Response(serializer.data)
 
-        if request.method in ['PUT']:
-            serializer = self.get_serializer()
-            pass
-            # cart_items_serializer = self.get_serializer(
-            #     data=request.data)
-            # cart_items_serializer.is_valid(raise_exception=True)
-            # cart_items_serializer.save(cart_id=newest_cart.id)
-            # return Response(status=status.HTTP_200_OK)
+
+class CartItemViewSet(viewsets.ModelViewSet):
+    # queryset = CartItem.objects.all()
+    serializer_class = CartItemSerializer
+
+    def get_my_container(self):
+        current_customer = get_object_or_404(Customer, user=self.request.user)
+        (current_cart, created) = Cart.objects.get_or_create(
+            customer=current_customer, is_checkout=False)
+        return (current_cart, created)
+
+    def get_queryset(self):
+        (current_cart, created) = self.get_my_container()
+        if not created:
+            return current_cart.cart_items
+        else:
+            return CartItem.objects.none()
+
+    def get_serializer_class(self):
+        if self.request.method == 'POST':
+            return AddCartItemSerializer
+        return CartItemSerializer
+
+    def get_serializer_context(self):
+        return {'cart': self.get_my_container()[0]}
 
 
 """

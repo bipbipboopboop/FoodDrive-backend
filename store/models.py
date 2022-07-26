@@ -151,7 +151,7 @@ class Cart(models.Model):
     # cart_items
 
     def __str__(self):
-        return f'{self.id} - {self.customer} - {self.shop}'
+        return f'{self.id} - {self.customer}'
 
 
 class CartItem(models.Model):
