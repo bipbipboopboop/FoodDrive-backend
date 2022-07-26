@@ -24,7 +24,7 @@ class CartSerializer(serializers.ModelSerializer):
         fields = '__all__'
 
 
-class UpdateCartItemsSerializer(serializers.Serializer):
+class MyCartSerializer(serializers.Serializer):
     product_id = serializers.IntegerField(write_only=True)
     quantity = serializers.IntegerField(write_only=True)
 
@@ -42,18 +42,16 @@ class UpdateCartItemsSerializer(serializers.Serializer):
         else:
             cart_item = CartItem.objects.create(
                 cart=cart, product=product, quantity=quantity)
-        # print('cart', cart)
         return cart
 
 
 class SimpleCartSerializer(serializers.ModelSerializer):
-    shop = SimpleShopSerializer()
     customer = SimpleCustomerSerializer()
     cart_items = CartItemSerializer(many=True)
 
     class Meta:
         model = Cart
-        fields = ['id', 'customer', 'shop',
+        fields = ['id', 'customer',
                   'customer', 'is_checkout', 'cart_items']
 
 
@@ -61,4 +59,4 @@ class CreateCartSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Cart
-        fields = ['customer', 'shop']
+        fields = ['customer']

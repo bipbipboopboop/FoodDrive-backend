@@ -128,16 +128,15 @@ class OrderViewSet(viewsets.ModelViewSet):
         return OrderSerializer
 
     def get_permissions(self):
-        # if self.action in ['list']:
-        #    return [IsAdminUser()]
-        # else:
-        return [IsAuthenticated()]
+        if self.action in ['list']:
+            return [IsAdminUser()]
+        else:
+            return [IsAuthenticated()]
 
     def create(self, request, *args, **kwargs):
         current_customer = Customer.objects.get(user=request.user)
         newest_cart = Cart.objects.filter(customer=current_customer,
                                           is_checkout=False).first()
-        print(newest_cart)
         current_cart_items = CartItem.objects.filter(
             cart=newest_cart).values('product', 'quantity')
         order = Order.objects.create(
