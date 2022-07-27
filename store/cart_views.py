@@ -41,7 +41,6 @@ class CartViewSet(viewsets.ModelViewSet):
 
     @action(detail=False, methods=['GET'])
     def my_cart(self, request, *args, **kwargs):
-        print(self.request.method)
         current_customer = get_object_or_404(Customer, user=request.user)
         newest_cart = Cart.objects.filter(
             customer=current_customer, is_checkout=False).first()

@@ -5,7 +5,7 @@ from rest_framework.mixins import ListModelMixin, CreateModelMixin, RetrieveMode
 from rest_framework.viewsets import GenericViewSet
 from rest_framework.decorators import action
 from rest_framework.response import Response
-from rest_framework.permissions import IsAuthenticated, AllowAny
+from rest_framework.permissions import IsAuthenticated, AllowAny, IsAdminUser
 
 from .serializers import CreateOrderSerializer, OrderHistorySerializer, OrderHistoryItemSerializer, CustomerSerializer, OrderItemSerializer, OrderSerializer, OwnerCreateSerializer, OwnerSerializer, ProductSerializer, ReviewSerializer, ShopSerializer
 from .models import Cart, Customer, OrderHistory, OrderHistoryItem, Order, OrderItem, Owner, Product, Review, Shop
@@ -16,6 +16,27 @@ from pprint import pprint
 class ShopViewSet(viewsets.ModelViewSet):
     queryset = Shop.objects.all()
     serializer_class = ShopSerializer
+
+    def is_vendor(self):
+        return self.request.user.is_vendor
+
+    def is_staff(self):
+        return self.request.user.is_staff
+
+    def get_permissions(self):
+        if (not self.is_vendor() and not self.is_staff()):
+            return [IsAdminUser()]
+        else:
+            return [IsAuthenticated()]
+
+    def get_queryset(self):
+        if (self.is_staff()):
+            return Shop.objects.all()
+        elif (self.is_vendor()):
+            owner = Owner.objects.get(user=self.request.user)
+            return Shop.objects.filter(owners=owner)
+        else:
+            return None
 
 
 class ProductViewSet(viewsets.ModelViewSet):
