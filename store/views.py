@@ -16,6 +16,7 @@ from pprint import pprint
 class ShopViewSet(viewsets.ModelViewSet):
     queryset = Shop.objects.all()
     serializer_class = ShopSerializer
+    permission_classes = [IsAuthenticated]
 
     def is_vendor(self):
         return self.request.user.is_vendor
@@ -23,20 +24,20 @@ class ShopViewSet(viewsets.ModelViewSet):
     def is_staff(self):
         return self.request.user.is_staff
 
-    def get_permissions(self):
-        if (not self.is_vendor() and not self.is_staff()):
-            return [IsAdminUser()]
-        else:
-            return [IsAuthenticated()]
+    # def get_permissions(self):
+    #     if (not self.is_vendor() and not self.is_staff()):
+    #         return [IsAdminUser()]
+    #     else:
+    #         return [IsAuthenticated()]
 
-    def get_queryset(self):
-        if (self.is_staff()):
-            return Shop.objects.all()
-        elif (self.is_vendor()):
-            owner = Owner.objects.get(user=self.request.user)
-            return Shop.objects.filter(owners=owner)
-        else:
-            return None
+    # def get_queryset(self):
+    #     if (self.is_staff()):
+    #         return Shop.objects.all()
+    #     elif (self.is_vendor()):
+    #         owner = Owner.objects.get(user=self.request.user)
+    #         return Shop.objects.filter(owners=owner)
+    #     else:
+    #         return None
 
     @action(detail=False, methods=['GET', 'PUT'])
     def my_shop(self, request):

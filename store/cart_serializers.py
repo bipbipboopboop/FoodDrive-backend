@@ -1,6 +1,6 @@
 from rest_framework import serializers
 from store.models import Cart, CartItem, Product
-from store.serializers import SimpleCustomerSerializer, SimpleShopSerializer
+from store.serializers import ProductSerializer, SimpleCustomerSerializer, SimpleShopSerializer
 
 
 class SimpleProductSerializer(serializers.ModelSerializer):
@@ -10,7 +10,8 @@ class SimpleProductSerializer(serializers.ModelSerializer):
 
 
 class CartItemSerializer(serializers.ModelSerializer):
-    product = SimpleProductSerializer(many=False, read_only=True)
+    # product = SimpleProductSerializer(many=False, read_only=True)
+    product = ProductSerializer(many=False, read_only=True)
 
     class Meta:
         model = CartItem
