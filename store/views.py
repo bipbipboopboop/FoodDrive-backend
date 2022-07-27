@@ -38,15 +38,38 @@ class ShopViewSet(viewsets.ModelViewSet):
         else:
             return None
 
+    @action(detail=False, methods=['GET', 'PUT'])
+    def my_shop(self, request):
+        owner = get_object_or_404(Owner, user_id=request.user.id)
+        shop = get_object_or_404(Shop, owners=owner)
+
+        if request.method == 'GET':
+            serializer = ShopSerializer(shop)
+            return Response(serializer.data)
+        elif request.method == 'PUT':
+            serializer = ShopSerializer(
+                shop, request.data)
+            serializer.is_valid(raise_exception=True)
+            serializer.save()
+            return Response(serializer.data)
+
 
 class ProductViewSet(viewsets.ModelViewSet):
+
+    """
+    Does not have permission yet :(
+    """
     serializer_class = ProductSerializer
-    # queryset = Product.objects.all()
 
     def get_queryset(self):
         url_param = self.kwargs
         if ('shop_pk' in url_param):
-            return Product.objects.filter(shop_id=url_param['shop_pk'])
+            if (url_param['shop_pk'] == 'my_shop'):
+                owner = get_object_or_404(Owner, user_id=self.request.user.id)
+                shop = get_object_or_404(Shop, owners=owner)
+                return shop.products
+            else:
+                return Product.objects.filter(shop_id=url_param['shop_pk'])
         else:
             return Product.objects.all()
 
@@ -59,10 +82,16 @@ class ReviewViewSet(viewsets.ModelViewSet):
 
     def get_queryset(self):
         url_param = self.kwargs
+
         if ('product_pk' in url_param):
             return Review.objects.filter(product_id=self.kwargs['product_pk'])
         elif ('shop_pk' in url_param):
-            return Review.objects.filter(shop_id=self.kwargs['shop_pk'])
+            if (url_param['shop_pk'] == 'my_shop'):
+                owner = get_object_or_404(Owner, user_id=self.request.user.id)
+                shop = get_object_or_404(Shop, owners=owner)
+                return shop.products.reviews
+            else:
+                return Review.objects.filter(shop_id=self.kwargs['shop_pk'])
         else:
             return None
 
