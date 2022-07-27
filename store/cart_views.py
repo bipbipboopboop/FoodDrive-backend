@@ -1,10 +1,11 @@
 
 from django.shortcuts import get_object_or_404
 
-from rest_framework import viewsets
+from rest_framework import viewsets, status
 
 from rest_framework.permissions import IsAuthenticated, IsAdminUser
 from rest_framework.response import Response
+from rest_framework.exceptions import ValidationError
 from rest_framework.decorators import action
 
 from store.models import Cart, CartItem, Customer
@@ -53,7 +54,7 @@ class CartViewSet(viewsets.ModelViewSet):
 
 
 class CartItemViewSet(viewsets.ModelViewSet):
-    # queryset = CartItem.objects.all()
+
     serializer_class = CartItemSerializer
 
     def get_my_cart(self):
@@ -63,11 +64,15 @@ class CartItemViewSet(viewsets.ModelViewSet):
         return (current_cart, created)
 
     def get_queryset(self):
-        (current_cart, created) = self.get_my_cart()
-        if not created:
-            return current_cart.cart_items
+        url_param = self.kwargs
+        if ('carts_pk' in url_param and url_param['carts_pk'] == 'my_cart'):
+            (current_cart, created) = self.get_my_cart()
+            if not created:
+                return current_cart.cart_items
+            else:
+                return CartItem.objects.none()
         else:
-            return CartItem.objects.none()
+            return None
 
     def get_serializer_class(self):
         if self.request.method == 'POST':
@@ -76,6 +81,13 @@ class CartItemViewSet(viewsets.ModelViewSet):
 
     def get_serializer_context(self):
         return {'cart': self.get_my_cart()[0]}
+
+    def list(self, request, *args, **kwargs):
+        queryset = self.filter_queryset(self.get_queryset())
+        if (queryset is not None):
+            return super().list(request, *args, **kwargs)
+        else:
+            return Response(status=status.HTTP_404_NOT_FOUND)
 
 
 """
