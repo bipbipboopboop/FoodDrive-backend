@@ -145,7 +145,7 @@ class CreateOrderSerializer(serializers.Serializer):
 
             # Add the order_item into ordered_items
             OrderHistoryItem.objects.create(
-                ordered_item=order_item, history=history)
+                order_item=order_item, history=history)
 
         cart.delete()
         return history

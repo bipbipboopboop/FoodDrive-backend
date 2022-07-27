@@ -139,7 +139,7 @@ class OrderHistoryItem(models.Model):
     history = models.ForeignKey(
         OrderHistory, on_delete=models.CASCADE, related_name='ordered_items')
     order_item = models.ForeignKey(
-        OrderItem, on_delete=models.DO_NOTHING)
+        OrderItem, on_delete=models.CASCADE)
 
     def __str__(self) -> str:
         return f'{self.history} - {self.order_item}'

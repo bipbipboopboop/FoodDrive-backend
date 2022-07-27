@@ -1,14 +1,14 @@
 from django.shortcuts import get_object_or_404
 from rest_framework import viewsets
 
-from rest_framework.mixins import ListModelMixin, CreateModelMixin, RetrieveModelMixin, UpdateModelMixin, DestroyModelMixin
+from rest_framework.mixins import ListModelMixin, CreateModelMixin, RetrieveModelMixin, UpdateModelMixin
 from rest_framework.viewsets import GenericViewSet
 from rest_framework.decorators import action
 from rest_framework.response import Response
-from rest_framework.permissions import IsAuthenticated, AllowAny, IsAdminUser
+from rest_framework.permissions import IsAuthenticated, AllowAny
 
-from .serializers import CreateOrderSerializer, OrderHistorySerializer, OrderHistoryItemSerializer, CustomerSerializer, OrderSerializer, OwnerCreateSerializer, OwnerSerializer, ProductSerializer, ReviewSerializer, ShopSerializer
-from .models import Cart, CartItem, Customer, OrderHistory, OrderHistoryItem, Order, OrderItem, Owner, Product, Review, Shop
+from .serializers import CreateOrderSerializer, OrderHistorySerializer, OrderHistoryItemSerializer, CustomerSerializer, OrderItemSerializer, OrderSerializer, OwnerCreateSerializer, OwnerSerializer, ProductSerializer, ReviewSerializer, ShopSerializer
+from .models import Cart, Customer, OrderHistory, OrderHistoryItem, Order, OrderItem, Owner, Product, Review, Shop
 
 from pprint import pprint
 
@@ -38,8 +38,6 @@ class ReviewViewSet(viewsets.ModelViewSet):
 
     def get_queryset(self):
         url_param = self.kwargs
-        pprint(self.kwargs)
-        pprint('shop_pk' in url_param)
         if ('product_pk' in url_param):
             return Review.objects.filter(product_id=self.kwargs['product_pk'])
         elif ('shop_pk' in url_param):
@@ -51,7 +49,6 @@ class ReviewViewSet(viewsets.ModelViewSet):
 class OwnerViewSet(CreateModelMixin, RetrieveModelMixin, UpdateModelMixin, GenericViewSet):
     queryset = Owner.objects.all()
     permission_classes = [IsAuthenticated]
-    # serializer_class = OwnerSerializer
 
     def get_serializer_class(self):
         if self.action == 'create':
@@ -107,9 +104,14 @@ class CustomerViewSet(CreateModelMixin, RetrieveModelMixin, UpdateModelMixin, Ge
             return Response(serializer.data)
 
 
+class OrderItemViewSet(viewsets.ModelViewSet):
+    queryset = OrderItem.objects.all()
+    serializer_class = OrderItemSerializer
+
+
 class OrderViewSet(viewsets.ModelViewSet):
     """
-    Only Vendors can see orders
+    Only Vendors or Staff can see orders
     """
     permission_classes = [IsAuthenticated]
 
@@ -117,8 +119,8 @@ class OrderViewSet(viewsets.ModelViewSet):
         if (self.request.user.is_staff):
             return Order.objects.all()
         if(self.request.user.is_vendor):
-            current_owner = Owner.get(user=self.request.user)
-            shop = Shop.objects.get(owner=current_owner)
+            current_owner = Owner.objects.get(user=self.request.user)
+            shop = Shop.objects.get(owners=current_owner)
             return shop.orders
 
     def get_serializer_class(self):
@@ -134,6 +136,8 @@ class OrderViewSet(viewsets.ModelViewSet):
         return current_cart
 
     def get_serializer_context(self):
+        if(self.request.user.is_vendor):
+            return {}
         return {'cart': self.get_my_cart()}
 
 
@@ -159,21 +163,3 @@ class OrderHistoryItemViewSet(RetrieveModelMixin, ListModelMixin, GenericViewSet
         else:
             customer = get_object_or_404(Customer, user=self.request.user)
             return OrderHistoryItem.objects.filter(customer=customer)
-
-
-"""
-POST /store/orders
-    - Cart ID
-
-1) Set current cart of Customer to is_order = True
-2) Create a new order by iterating through the cart_items and creating corresponding order_items
-3) Create new cart instance and tie it to this customer
-"""
-
-
-"""
-Customer
-I can add things into my cart
-If I logout and come back, my cart will still be there
-
-"""

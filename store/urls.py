@@ -42,11 +42,11 @@ shops_router.register('orders', views.OrderViewSet,
 # /store/shops/1/products/1/review
 
 
-orders_router = routers.NestedDefaultRouter(
-    shops_router, 'orders', lookup='order')
-orders_router.register('products', views.ProductViewSet,
-                       basename='order-products')
+shop_orders_router = routers.NestedDefaultRouter(
+    shops_router, 'orders', lookup='orders')
+shop_orders_router.register('order_items', views.OrderItemViewSet,
+                            basename='order-order_items')
 
 
 urlpatterns = router.urls + products_router.urls + \
-    shops_router.urls + orders_router.urls
+    shops_router.urls + shop_orders_router.urls
