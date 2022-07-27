@@ -1,13 +1,14 @@
 from django.shortcuts import get_object_or_404
 from rest_framework import viewsets
-from rest_framework.mixins import CreateModelMixin, RetrieveModelMixin, UpdateModelMixin
+
+from rest_framework.mixins import ListModelMixin, CreateModelMixin, RetrieveModelMixin, UpdateModelMixin, DestroyModelMixin
 from rest_framework.viewsets import GenericViewSet
 from rest_framework.decorators import action
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated, AllowAny, IsAdminUser
 
-from .serializers import CreateOrderSerializer, CustomerSerializer, OrderSerializer, OwnerCreateSerializer, OwnerSerializer, ProductSerializer, ReviewSerializer, ShopSerializer
-from .models import Cart, CartItem, Customer, Order, OrderItem, Owner, Product, Review, Shop
+from .serializers import CreateOrderSerializer, OrderHistorySerializer, OrderHistoryItemSerializer, CustomerSerializer, OrderSerializer, OwnerCreateSerializer, OwnerSerializer, ProductSerializer, ReviewSerializer, ShopSerializer
+from .models import Cart, CartItem, Customer, OrderHistory, OrderHistoryItem, Order, OrderItem, Owner, Product, Review, Shop
 
 from pprint import pprint
 
@@ -130,14 +131,34 @@ class OrderViewSet(viewsets.ModelViewSet):
         (current_cart, created) = Cart.objects.get_or_create(
             customer=current_customer, is_checkout=False)
 
-        if not created:
-            return current_cart
-        else:
-            newest_cart = Cart.objects.create(customer=current_customer)
-            return newest_cart
+        return current_cart
 
     def get_serializer_context(self):
         return {'cart': self.get_my_cart()}
+
+
+class OrderHistoryViewSet(ListModelMixin, GenericViewSet):
+    permission_classes = [IsAuthenticated]
+    serializer_class = OrderHistorySerializer
+
+    def get_queryset(self):
+        if (self.request.user.is_staff):
+            return OrderHistory.objects.all()
+        else:
+            customer = get_object_or_404(Customer, user=self.request.user)
+            return OrderHistory.objects.filter(customer=customer)
+
+
+class OrderHistoryItemViewSet(RetrieveModelMixin, ListModelMixin, GenericViewSet):
+    permission_classes = [IsAuthenticated]
+    serializer_class = OrderHistoryItemSerializer
+
+    def get_queryset(self):
+        if (self.request.user.is_staff):
+            return OrderHistoryItem.objects.all()
+        else:
+            customer = get_object_or_404(Customer, user=self.request.user)
+            return OrderHistoryItem.objects.filter(customer=customer)
 
 
 """

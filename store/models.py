@@ -120,9 +120,29 @@ class OrderItem(models.Model):
     product = models.ForeignKey(
         Product, on_delete=models.CASCADE, related_name='order_items')
     quantity = models.PositiveSmallIntegerField()
+    # ordered_items
 
     def __str__(self) -> str:
         return f'{self.order} - {self.product} - {self.quantity}'
+
+
+class OrderHistory(models.Model):
+    customer = models.ForeignKey(
+        Customer, on_delete=models.CASCADE, related_name='order_history')
+    # ordered_items
+
+    def __str__(self) -> str:
+        return f'{self.customer} - {self.id}'
+
+
+class OrderHistoryItem(models.Model):
+    history = models.ForeignKey(
+        OrderHistory, on_delete=models.CASCADE, related_name='ordered_items')
+    order_item = models.ForeignKey(
+        OrderItem, on_delete=models.DO_NOTHING)
+
+    def __str__(self) -> str:
+        return f'{self.history} - {self.order_item}'
 
 
 class Review(models.Model):
@@ -145,7 +165,7 @@ class Cart(models.Model):
     created_at = models.DateTimeField(auto_now_add=True, null=True)
     updated_at = models.DateTimeField(auto_now=True, null=True)
 
-    customer = models.ForeignKey(
+    customer = models.OneToOneField(
         Customer, related_name=CARTS_RELATED_NAME, on_delete=models.CASCADE, null=True)
     is_checkout = models.BooleanField(default=False)
     # cart_items

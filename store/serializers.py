@@ -3,7 +3,7 @@ from django.db import transaction
 from rest_framework import serializers
 
 
-from store.models import Cart, CartItem, Customer, Order, OrderItem, Owner, Product, Review, Shop
+from store.models import Cart, CartItem, Customer, OrderHistory, OrderHistoryItem, Order, OrderItem, Owner, Product, Review, Shop
 from main.models import User
 from pprint import pprint
 
@@ -102,7 +102,7 @@ class OrderItemSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = OrderItem
-        fields = ['id', 'product', 'unit_price', 'quantity']
+        fields = ['id', 'product', 'quantity']
 
 
 class OrderSerializer(serializers.ModelSerializer):
@@ -130,6 +130,9 @@ class CreateOrderSerializer(serializers.Serializer):
         if not cart_items:
             raise serializers.ValidationError('The cart is empty.')
 
+        history = OrderHistory.objects.create(
+            customer=cart.customer)
+
         for item in cart_items:
             order_for_item = Order.objects.filter(
                 order_status='Pending', customer=cart.customer).first()
@@ -137,36 +140,35 @@ class CreateOrderSerializer(serializers.Serializer):
                 order_for_item = Order.objects.create(
                     shop=item.product.shop, customer=cart.customer)
 
-            OrderItem.objects.create(
+            order_item = OrderItem.objects.create(
                 order=order_for_item, product=item.product, quantity=item.quantity)
 
-        cart.is_checkout = True
-        cart.save()
-        return cart
+            # Add the order_item into ordered_items
+            OrderHistoryItem.objects.create(
+                ordered_item=order_item, history=history)
 
-    # def save(self, **kwargs):
-    #     with transaction.atomic():
-    #         cart_id = self.validated_data['cart_id']
+        cart.delete()
+        return history
 
-    #         customer = Customer.objects.get(
-    #             user_id=self.context['user_id'])
-    #         order = Order.objects.create(customer=customer)
 
-    #         cart_items = CartItem.objects \
-    #             .select_related('product') \
-    #             .filter(cart_id=cart_id)
-    #         order_items = [
-    #             OrderItem(
-    #                 order=order,
-    #                 product=item.product,
-    #                 unit_price=item.product.unit_price,
-    #                 quantity=item.quantity
-    #             ) for item in cart_items
-    #         ]
-    #         OrderItem.objects.bulk_create(order_items)
+class OrderHistoryItemSerializer(serializers.ModelSerializer):
 
-    #         Cart.objects.filter(pk=cart_id).delete()
+    order_item = OrderItemSerializer(read_only=True)
+    shop = serializers.SerializerMethodField()
 
-    #         order_created.send_robust(self.__class__, order=order)
+    def get_shop(self, obj):
+        print(f'Model: {obj.order_item.product.shop}')
+        return ShopSerializer(instance=obj.order_item.product.shop).data
 
-    #         return order
+    class Meta:
+        model = OrderHistoryItem
+        fields = ['order_item', 'shop']
+
+
+class OrderHistorySerializer(serializers.ModelSerializer):
+
+    ordered_items = OrderHistoryItemSerializer(many=True)
+
+    class Meta:
+        model = OrderHistory
+        fields = ['customer', 'ordered_items']
