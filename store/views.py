@@ -16,7 +16,6 @@ from pprint import pprint
 class ShopViewSet(viewsets.ModelViewSet):
     queryset = Shop.objects.all()
     serializer_class = ShopSerializer
-    permission_classes = [IsAuthenticated]
 
     def is_vendor(self):
         return self.request.user.is_vendor
