@@ -66,13 +66,19 @@ class ProductSerializer(serializers.ModelSerializer):
                   'stock', 'shop', 'slug', 'image_link', 'reviews']
 
 
-class ProductCreateSerializer(serializers.ModelSerializer):
-    reviews = ReviewSerializer(many=True, read_only=True)
+class ProductCreateSerializer(serializers.Serializer):
 
-    class Meta:
-        model = Product
-        fields = ['id', 'title', 'description', 'unit_price',
-                  'stock', 'shop', 'slug', 'image_link', 'reviews']
+    title = serializers.CharField()
+    description = serializers.CharField()
+    unit_price = serializers.DecimalField(max_digits=5, decimal_places=2)
+    stock = serializers.IntegerField()
+    slug = serializers.SlugField()
+    image_link = serializers.CharField()
+
+    def save(self, **kwargs):
+        shop_id = self.context['shop_id']
+        validated_data = self.validated_data
+        Product.objects.create(**validated_data, shop_id=shop_id)
 
 
 class OwnerSerializer(serializers.ModelSerializer):

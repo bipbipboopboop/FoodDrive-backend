@@ -7,7 +7,7 @@ from rest_framework.decorators import action
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated, AllowAny, IsAdminUser
 
-from .serializers import CreateOrderSerializer, OrderHistorySerializer, OrderHistoryItemSerializer, CustomerSerializer, OrderItemSerializer, OrderSerializer, OwnerCreateSerializer, OwnerSerializer, ProductSerializer, ReviewSerializer, ShopSerializer
+from .serializers import CreateOrderSerializer, OrderHistorySerializer, OrderHistoryItemSerializer, CustomerSerializer, OrderItemSerializer, OrderSerializer, OwnerCreateSerializer, OwnerSerializer, ProductCreateSerializer, ProductSerializer, ReviewSerializer, ShopSerializer
 from .models import Cart, Customer, OrderHistory, OrderHistoryItem, Order, OrderItem, Owner, Product, Review, Shop
 
 from pprint import pprint
@@ -59,12 +59,13 @@ class ProductViewSet(viewsets.ModelViewSet):
     """
     Does not have permission yet :(
     """
-    serializer_class = ProductSerializer
+    # serializer_class = ProductSerializer
 
     def get_queryset(self):
         url_param = self.kwargs
         if ('shop_pk' in url_param):
             if (url_param['shop_pk'] == 'my_shop'):
+
                 owner = get_object_or_404(Owner, user_id=self.request.user.id)
                 shop = get_object_or_404(Shop, owners=owner)
                 return shop.products
@@ -72,6 +73,21 @@ class ProductViewSet(viewsets.ModelViewSet):
                 return Product.objects.filter(shop_id=url_param['shop_pk'])
         else:
             return Product.objects.all()
+
+    def get_serializer_class(self):
+        if self.action in ['create']:
+            return ProductCreateSerializer
+        else:
+            return ProductSerializer
+
+    def get_serializer_context(self):
+        if(self.request.user.is_vendor):
+            owner = get_object_or_404(Owner, user=self.request.user)
+            shop = get_object_or_404(Shop, owners=owner)
+            shop_id = shop.id
+            print(shop_id)
+            return {'shop_id': shop_id}
+        return {}
 
 
 class ReviewViewSet(viewsets.ModelViewSet):
