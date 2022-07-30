@@ -163,7 +163,6 @@ class OrderHistoryItemSerializer(serializers.ModelSerializer):
     shop = serializers.SerializerMethodField()
 
     def get_shop(self, obj):
-        print(f'Model: {obj.order_item.product.shop}')
         return SimpleShopSerializer(instance=obj.order_item.product.shop).data
 
     class Meta:

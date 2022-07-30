@@ -24,7 +24,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 
 # SECURITY WARNING: keep the secret key used in production secret!
 
-print(os.environ.get('PRODUCTION'))
+
 if os.environ.get('PRODUCTION') == True:
     SECRET_KEY = os.environ.get("SECRET_KEY")
     DEBUG = False

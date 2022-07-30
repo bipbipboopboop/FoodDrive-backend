@@ -1,4 +1,6 @@
 from django.shortcuts import get_object_or_404
+from django.contrib.auth.models import AnonymousUser
+
 from rest_framework import viewsets
 
 from rest_framework.mixins import ListModelMixin, CreateModelMixin, RetrieveModelMixin, UpdateModelMixin
@@ -9,8 +11,6 @@ from rest_framework.permissions import IsAuthenticated, AllowAny, IsAdminUser
 
 from .serializers import CreateOrderSerializer, OrderHistorySerializer, OrderHistoryItemSerializer, CustomerSerializer, OrderItemSerializer, OrderSerializer, OwnerCreateSerializer, OwnerSerializer, ProductCreateSerializer, ProductSerializer, ReviewSerializer, ShopSerializer
 from .models import Cart, Customer, OrderHistory, OrderHistoryItem, Order, OrderItem, Owner, Product, Review, Shop
-
-from pprint import pprint
 
 
 class ShopViewSet(viewsets.ModelViewSet):
@@ -59,7 +59,12 @@ class ProductViewSet(viewsets.ModelViewSet):
     """
     Does not have permission yet :(
     """
-    # serializer_class = ProductSerializer
+
+    def get_permissions(self):
+        if self.action in ['list']:
+            return [AllowAny()]
+        else:
+            return [IsAuthenticated()]
 
     def get_queryset(self):
         url_param = self.kwargs
@@ -81,13 +86,14 @@ class ProductViewSet(viewsets.ModelViewSet):
             return ProductSerializer
 
     def get_serializer_context(self):
-        if(self.request.user.is_vendor):
-            owner = get_object_or_404(Owner, user=self.request.user)
-            shop = get_object_or_404(Shop, owners=owner)
-            shop_id = shop.id
-            print(shop_id)
-            return {'shop_id': shop_id}
-        return {}
+        if not self.request.user.is_anonymous:
+            if(self.request.user.is_vendor):
+                owner = get_object_or_404(Owner, user=self.request.user)
+                shop = get_object_or_404(Shop, owners=owner)
+                shop_id = shop.id
+
+                return {'shop_id': shop_id}
+            return {}
 
 
 class ReviewViewSet(viewsets.ModelViewSet):
