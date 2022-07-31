@@ -9,7 +9,7 @@ from rest_framework.decorators import action
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated, AllowAny
 
-from .serializers import CreateOrderSerializer, OrderHistorySerializer, OrderHistoryItemSerializer, CustomerSerializer, OrderItemSerializer, OrderSerializer, OwnerCreateSerializer, OwnerSerializer, ProductCreateSerializer, ProductSerializer, ReviewSerializer, ShopSerializer
+from .serializers import CreateOrderSerializer, OrderHistorySerializer, OrderHistoryItemSerializer, CustomerSerializer, OrderItemSerializer, OrderSerializer, OwnerCreateSerializer, OwnerSerializer, ProductCreateSerializer, ProductSerializer, ReviewSerializer, ShopSerializer, UpdateOrderSerializer
 from .models import Cart, Customer, OrderHistory, OrderHistoryItem, Order, OrderItem, Owner, Product, Review, Shop
 
 
@@ -193,11 +193,14 @@ class OrderViewSet(viewsets.ModelViewSet):
         if(self.request.user.is_vendor):
             current_owner = Owner.objects.get(user=self.request.user)
             shop = Shop.objects.get(owners=current_owner)
-            return shop.orders
+            orders = Order.objects.filter(shop=shop, order_status='Pending')
+            return orders
 
     def get_serializer_class(self):
         if (self.request.method == "POST"):
             return CreateOrderSerializer
+        if (self.request.method == "PUT"):
+            return UpdateOrderSerializer
         return OrderSerializer
 
     def get_my_cart(self):
@@ -211,6 +214,15 @@ class OrderViewSet(viewsets.ModelViewSet):
         if(self.request.user.is_vendor):
             return {}
         return {'cart': self.get_my_cart()}
+
+    @action(detail=False, methods=["GET"])
+    def my_past_orders(self, request):
+        current_owner = Owner.objects.get(user=self.request.user)
+        shop = Shop.objects.get(owners=current_owner)
+        orders = Order.objects.filter(shop=shop, order_status='COMPLETE')
+        serializer = OrderSerializer(orders, many=True)
+
+        return Response(serializer.data)
 
 
 class OrderHistoryViewSet(ListModelMixin, RetrieveModelMixin, GenericViewSet):
