@@ -193,7 +193,7 @@ class OrderViewSet(viewsets.ModelViewSet):
         if(self.request.user.is_vendor):
             current_owner = Owner.objects.get(user=self.request.user)
             shop = Shop.objects.get(owners=current_owner)
-            orders = Order.objects.filter(shop=shop, order_status='Pending')
+            orders = Order.objects.filter(shop=shop, order_status='PENDING')
             return orders
 
     def get_serializer_class(self):
