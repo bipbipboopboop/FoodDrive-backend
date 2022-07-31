@@ -100,7 +100,7 @@ class OwnerCreateSerializer(serializers.ModelSerializer):
 class SimpleProductSerializer(serializers.ModelSerializer):
     class Meta:
         model = Product
-        fields = ['id', 'title', 'unit_price']
+        fields = ['id', 'title', 'unit_price', 'image_link']
 
 
 class OrderItemSerializer(serializers.ModelSerializer):
@@ -176,4 +176,4 @@ class OrderHistorySerializer(serializers.ModelSerializer):
 
     class Meta:
         model = OrderHistory
-        fields = ['customer', 'ordered_items']
+        fields = ['id', 'customer', 'ordered_items']

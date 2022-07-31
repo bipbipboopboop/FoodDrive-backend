@@ -1,5 +1,5 @@
 from django.shortcuts import get_object_or_404
-from django.contrib.auth.models import AnonymousUser
+
 
 from rest_framework import viewsets
 
@@ -7,7 +7,7 @@ from rest_framework.mixins import ListModelMixin, CreateModelMixin, RetrieveMode
 from rest_framework.viewsets import GenericViewSet
 from rest_framework.decorators import action
 from rest_framework.response import Response
-from rest_framework.permissions import IsAuthenticated, AllowAny, IsAdminUser
+from rest_framework.permissions import IsAuthenticated, AllowAny
 
 from .serializers import CreateOrderSerializer, OrderHistorySerializer, OrderHistoryItemSerializer, CustomerSerializer, OrderItemSerializer, OrderSerializer, OwnerCreateSerializer, OwnerSerializer, ProductCreateSerializer, ProductSerializer, ReviewSerializer, ShopSerializer
 from .models import Cart, Customer, OrderHistory, OrderHistoryItem, Order, OrderItem, Owner, Product, Review, Shop
@@ -213,7 +213,7 @@ class OrderViewSet(viewsets.ModelViewSet):
         return {'cart': self.get_my_cart()}
 
 
-class OrderHistoryViewSet(ListModelMixin, GenericViewSet):
+class OrderHistoryViewSet(ListModelMixin, RetrieveModelMixin, GenericViewSet):
     permission_classes = [IsAuthenticated]
     serializer_class = OrderHistorySerializer
 
@@ -234,4 +234,7 @@ class OrderHistoryItemViewSet(RetrieveModelMixin, ListModelMixin, GenericViewSet
             return OrderHistoryItem.objects.all()
         else:
             customer = get_object_or_404(Customer, user=self.request.user)
-            return OrderHistoryItem.objects.filter(customer=customer)
+            completed_order_item = OrderItem.objects.filter(
+                order=Order.objects.filter(customer=customer, order_status='COMPLETED'))
+
+            return OrderHistoryItem.objects.filter(customer=customer, order_item=completed_order_item)
