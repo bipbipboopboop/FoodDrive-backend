@@ -1,11 +1,7 @@
-from django.db import transaction
-
 from rest_framework import serializers
 
-
-from store.models import Cart, CartItem, Customer, OrderHistory, OrderHistoryItem, Order, OrderItem, Owner, Product, Review, Shop
+from store.models import CartItem, Customer, OrderHistory, OrderHistoryItem, Order, OrderItem, Owner, Product, Review, Shop
 from main.models import User
-from pprint import pprint
 
 
 class ReviewSerializer(serializers.ModelSerializer):
@@ -14,6 +10,15 @@ class ReviewSerializer(serializers.ModelSerializer):
         model = Review
         fields = ['product', 'shop', 'customer',
                   'description', 'date', ]
+
+
+class CreateCustomerSerializer(serializers.ModelSerializer):
+
+    user_id = serializers.IntegerField(write_only=True)
+
+    class Meta:
+        model = Customer
+        fields = ['user_id']
 
 
 class CustomerSerializer(serializers.ModelSerializer):

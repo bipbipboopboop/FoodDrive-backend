@@ -9,7 +9,7 @@ from rest_framework.decorators import action
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated, AllowAny
 
-from .serializers import CreateOrderSerializer, OrderHistorySerializer, OrderHistoryItemSerializer, CustomerSerializer, OrderItemSerializer, OrderSerializer, OwnerCreateSerializer, OwnerSerializer, ProductCreateSerializer, ProductSerializer, ReviewSerializer, ShopSerializer, UpdateOrderSerializer
+from .serializers import CreateCustomerSerializer, CreateOrderSerializer, OrderHistorySerializer, OrderHistoryItemSerializer, CustomerSerializer, OrderItemSerializer, OrderSerializer, OwnerCreateSerializer, OwnerSerializer, ProductCreateSerializer, ProductSerializer, ReviewSerializer, ShopSerializer, UpdateOrderSerializer
 from .models import Cart, Customer, OrderHistory, OrderHistoryItem, Order, OrderItem, Owner, Product, Review, Shop
 
 
@@ -149,17 +149,15 @@ class OwnerViewSet(CreateModelMixin, RetrieveModelMixin, UpdateModelMixin, Gener
 
 
 class CustomerViewSet(CreateModelMixin, RetrieveModelMixin, UpdateModelMixin, GenericViewSet):
-    # We don't really need a list of customers
+
     queryset = Customer.objects.all()
-    serializer_class = CustomerSerializer
     permission_classes = [IsAuthenticated]
     # Available on list view /customers/me
 
-    def get_permissions(self):
-        if self.request.method == 'GET':
-            return [AllowAny()]
-        else:
-            return [IsAuthenticated()]
+    def get_serializer_class(self, *args, **kwargs):
+        if self.request.method in ['POST']:
+            return CreateCustomerSerializer
+        return CustomerSerializer
 
     @action(detail=False, methods=['GET', 'PUT'])
     def me(self, request):
