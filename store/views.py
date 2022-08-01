@@ -151,8 +151,14 @@ class OwnerViewSet(CreateModelMixin, RetrieveModelMixin, UpdateModelMixin, Gener
 class CustomerViewSet(CreateModelMixin, RetrieveModelMixin, UpdateModelMixin, GenericViewSet):
 
     queryset = Customer.objects.all()
-    permission_classes = [IsAuthenticated]
+    # permission_classes = [IsAuthenticated]
     # Available on list view /customers/me
+
+    def get_permissions(self):
+        if self.request.method in ['POST']:
+            return [AllowAny()]
+        else:
+            return [IsAuthenticated]
 
     def get_serializer_class(self, *args, **kwargs):
         if self.request.method in ['POST']:
