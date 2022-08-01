@@ -184,7 +184,15 @@ class OrderHistoryItemSerializer(serializers.ModelSerializer):
 class OrderHistorySerializer(serializers.ModelSerializer):
 
     ordered_items = OrderHistoryItemSerializer(many=True)
+    order_status = serializers.SerializerMethodField()
+
+    def get_order_status(self, object):
+        ordered_items = OrderHistoryItem.objects.filter(history=object)
+        is_order_finish = True
+        for item in ordered_items:
+            is_order_finish = is_order_finish and item.order_item.order.order_status == "COMPLETED"
+        return "Completed" if is_order_finish else "Pending"
 
     class Meta:
         model = OrderHistory
-        fields = ['id', 'customer', 'ordered_items']
+        fields = ['id', 'customer', 'ordered_items', 'order_status']
