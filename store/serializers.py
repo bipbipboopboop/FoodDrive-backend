@@ -190,7 +190,8 @@ class OrderHistorySerializer(serializers.ModelSerializer):
         ordered_items = OrderHistoryItem.objects.filter(history=object)
         is_order_finish = True
         for item in ordered_items:
-            is_order_finish = is_order_finish and item.order_item.order.order_status == "COMPLETED"
+            print(item.order_item.order.order_status)
+            is_order_finish = is_order_finish and item.order_item.order.order_status == "COMPLETE"
         return "Completed" if is_order_finish else "Pending"
 
     class Meta:
