@@ -38,6 +38,13 @@ class Product(models.Model):
     # orders
     # reviews
 
+    @property
+    def unit_amount(self):
+        """
+        Returns unit_price in cents
+        """
+        return self.unit_price * 100
+
     def __str__(self) -> str:
         return self.title
 

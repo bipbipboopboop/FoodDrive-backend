@@ -149,7 +149,7 @@ class CreateOrderSerializer(serializers.Serializer):
         # A dictionary of (shop_id : Order)
         shops_in_cart = {}
         for item in cart_items:
-            print(shops_in_cart)
+
             current_shop_id = item.product.shop.id
             if current_shop_id not in shops_in_cart:
                 order = Order.objects.create(

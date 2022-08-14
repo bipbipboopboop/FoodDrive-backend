@@ -158,7 +158,7 @@ class CustomerViewSet(CreateModelMixin, RetrieveModelMixin, UpdateModelMixin, Ge
         if self.request.method in ['POST']:
             return [AllowAny()]
         else:
-            return [IsAuthenticated]
+            return [IsAuthenticated()]
 
     def get_serializer_class(self, *args, **kwargs):
         if self.request.method in ['POST']:
