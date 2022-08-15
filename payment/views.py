@@ -1,4 +1,5 @@
 from store.models import Cart, Customer
+from store.views import OrderViewSet
 from .serializers import CreatePaymentSerializer
 import stripe
 from rest_framework.views import APIView
@@ -23,10 +24,9 @@ def test_payment(request):
     return Response(status=status.HTTP_200_OK, data=test_payment_intent)
 
 
-class CreatePayment(APIView):
+class CreatePaymentView(APIView):
 
     def post(self, request, *args, **kwargs):
-
         current_customer = get_object_or_404(Customer, user=request.user)
         my_cart = get_object_or_404(Cart, customer=current_customer)
         my_cart_items = my_cart.cart_items.all()
@@ -39,7 +39,9 @@ class CreatePayment(APIView):
 
         serializer.is_valid()
         data = serializer.data
-
-        response = stripe.checkout.Session.create(**data)
-
-        return Response(data=response)
+        if not data:
+            return Response(data={"error": "Cart items can't be empty!"}, status=status.HTTP_400_BAD_REQUEST)
+        else:
+            response = stripe.checkout.Session.create(**data)
+            OrderViewSet.as_view({"post": "create"})(request._request)
+            return Response(data={"url": response.url}, status=status.HTTP_200_OK)

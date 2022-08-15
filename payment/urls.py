@@ -3,5 +3,5 @@ from payment import views
 
 urlpatterns = [
     path('test-payment/', views.test_payment),
-    path('create-payment/', views.CreatePayment.as_view())
+    path('create-payment/', views.CreatePaymentView.as_view())
 ]

@@ -1,5 +1,8 @@
 from rest_framework import serializers
 from store.cart_serializers import CartItemSerializer
+import environ
+
+env = environ.Env()
 
 
 class ProductDataSerializer(serializers.Serializer):
@@ -57,17 +60,19 @@ class CreatePaymentSerializer(serializers.Serializer):
         cart_items = cart_item_serializer.data
 
         line_items = []
-        for item in cart_items:
-            line_item_serializer = LineItemSerializer(
-                data=item, context={'cart_item': item}
-            )
-            line_item_serializer.is_valid()
-            line_items.append(line_item_serializer.data)
-        payment["payment_method_types"] = ["card"]
-        payment["mode"] = "payment"
-        payment["line_items"] = line_items
-        payment["success_url"] = "http://localhost:3000/"
-        payment["cancel_url"] = "http://localhost:3000/vendor/1"
+
+        if cart_items:
+            for item in cart_items:
+                line_item_serializer = LineItemSerializer(
+                    data=item, context={'cart_item': item}
+                )
+                line_item_serializer.is_valid()
+                line_items.append(line_item_serializer.data)
+            payment["payment_method_types"] = ["card"]
+            payment["mode"] = "payment"
+            payment["line_items"] = line_items
+            payment["success_url"] = env('PAYMENT_SUCCESS_URL')
+            payment["cancel_url"] = env('PAYMENT_FAILURE_URL')
 
         return payment
 
